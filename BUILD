@@ -7,4 +7,11 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_test(
+    name = "tinytest_test",
+    srcs = ["tinytest_test.cpp"],
+    deps = [
+        ":tinytest",
+        "@com_google_googletest//:gtest_main",
+    ],
 )
