@@ -17,6 +17,7 @@ hedron_compile_commands_setup()
 
 http_archive(
     name = "com_google_googletest",
+    sha256 = "d0491ad8a4f6d4dadbc33229a0a1c4bfd3b61a750411b69c4945acd5cbb6d73f",
     strip_prefix = "googletest-ccdeec888ebb740a7ea4e07d3e84a1b7ee32b315",
     urls = ["https://github.com/google/googletest/archive/ccdeec888ebb740a7ea4e07d3e84a1b7ee32b315.zip"],
 )
