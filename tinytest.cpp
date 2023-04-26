@@ -1,5 +1,5 @@
 #define _XOPEN_SOURCE_EXTENDED
-#include "test.h"
+#include "tinytest.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -7,12 +7,12 @@
 #include <string>
 #include <vector>
 
-namespace Test {
+namespace TinyTest {
 namespace {
 using std::endl;
 using std::string;
 using std::vector;
-} // End namespace
+}  // End namespace
 
 // Test lifecycle
 // suiteSetupFn(); - This is called to allocate any suite level resources. This
@@ -143,146 +143,164 @@ using std::vector;
 //   Default to (string, _FnToTest, vector<tuple<"", _T1, [](a,b){return a==b;},
 //   make_tuple()) Also allow make_tuple(T2) if the last param is not a tuple.
 
-TestResults::TestResults()
-    : errors_(0), failed_(0), passed_(0), skipped_(0), total_(0) {}
+TestResults::TestResults() : errors_(0), failed_(0), passed_(0), skipped_(0), total_(0) {}
 
-TestResults::TestResults(const TestResults &other)
-    : error_messages_(other.error_messages_), errors_(other.errors_),
-      failed_(other.failed_), failure_messages_(other.failure_messages_),
-      passed_(other.passed_), skip_messages_(other.skip_messages_),
-      skipped_(other.skipped_), total_(other.total_) {}
+TestResults::TestResults(const TestResults& other)
+    : error_messages_(other.error_messages_),
+      errors_(other.errors_),
+      failed_(other.failed_),
+      failure_messages_(other.failure_messages_),
+      passed_(other.passed_),
+      skip_messages_(other.skip_messages_),
+      skipped_(other.skipped_),
+      total_(other.total_) {}
 
-TestResults::TestResults(uint32_t errors, uint32_t failed, uint32_t passed,
-                         uint32_t skipped, uint32_t total,
+TestResults::TestResults(uint32_t errors,
+                         uint32_t failed,
+                         uint32_t passed,
+                         uint32_t skipped,
+                         uint32_t total,
                          vector<string> error_messages,
                          vector<string> failure_messages,
                          vector<string> skip_messages)
-    : error_messages_(error_messages), errors_(errors), failed_(failed),
-      failure_messages_(failure_messages), passed_(passed),
-      skip_messages_(skip_messages), skipped_(skipped), total_(total) {}
+    : error_messages_(error_messages),
+      errors_(errors),
+      failed_(failed),
+      failure_messages_(failure_messages),
+      passed_(passed),
+      skip_messages_(skip_messages),
+      skipped_(skipped),
+      total_(total) {}
 
-TestResults &TestResults::error() {
+TestResults& TestResults::error() {
   errors_++;
   return *this;
 }
 
-TestResults &TestResults::error(string message) {
+TestResults& TestResults::error(string message) {
   errors_++;
   error_messages_.push_back(message);
   return *this;
 }
 
-TestResults &TestResults::fail() {
+TestResults& TestResults::fail() {
   total_++;
   failed_++;
   return *this;
 }
 
-TestResults &TestResults::fail(const string &message) {
+TestResults& TestResults::fail(const string& message) {
   total_++;
   failed_++;
   failure_messages_.push_back(message);
   return *this;
 }
 
-vector<string> TestResults::failure_messages() { return failure_messages_; }
+vector<string> TestResults::failure_messages() {
+  return failure_messages_;
+}
 
-TestResults &TestResults::pass() {
+TestResults& TestResults::pass() {
   total_++;
   passed_++;
   return *this;
 }
 
-TestResults &TestResults::skip() {
+TestResults& TestResults::skip() {
   total_++;
   skipped_++;
   return *this;
 }
 
-TestResults &TestResults::skip(const string &message) {
+TestResults& TestResults::skip(const string& message) {
   total_++;
   skipped_++;
   skip_messages_.push_back(message);
   return *this;
 }
 
-vector<string> TestResults::skip_messages() { return skip_messages_; }
+vector<string> TestResults::skip_messages() {
+  return skip_messages_;
+}
 
-vector<string> TestResults::error_messages() { return error_messages_; }
+vector<string> TestResults::error_messages() {
+  return error_messages_;
+}
 
-uint32_t TestResults::errors() { return errors_; }
+uint32_t TestResults::errors() {
+  return errors_;
+}
 
-uint32_t TestResults::failed() { return failed_; }
+uint32_t TestResults::failed() {
+  return failed_;
+}
 
-uint32_t TestResults::passed() { return passed_; }
+uint32_t TestResults::passed() {
+  return passed_;
+}
 
-uint32_t TestResults::skipped() { return skipped_; }
+uint32_t TestResults::skipped() {
+  return skipped_;
+}
 
-uint32_t TestResults::total() { return total_; }
+uint32_t TestResults::total() {
+  return total_;
+}
 
-TestResults TestResults::operator+(const TestResults &other) const {
+TestResults TestResults::operator+(const TestResults& other) const {
   vector<string> error_messages;
-  error_messages.insert(error_messages.end(), error_messages_.begin(),
-                        error_messages_.end());
-  error_messages.insert(error_messages.end(), other.error_messages_.begin(),
-                        other.error_messages_.end());
+  error_messages.insert(error_messages.end(), error_messages_.begin(), error_messages_.end());
+  error_messages.insert(error_messages.end(), other.error_messages_.begin(), other.error_messages_.end());
   vector<string> failure_messages;
-  failure_messages.insert(failure_messages.end(), failure_messages_.begin(),
-                          failure_messages_.end());
-  failure_messages.insert(failure_messages.end(),
-                          other.failure_messages_.begin(),
-                          other.failure_messages_.end());
+  failure_messages.insert(failure_messages.end(), failure_messages_.begin(), failure_messages_.end());
+  failure_messages.insert(failure_messages.end(), other.failure_messages_.begin(), other.failure_messages_.end());
   vector<string> skip_messages;
-  skip_messages.insert(skip_messages.end(), skip_messages_.begin(),
-                       skip_messages_.end());
-  skip_messages.insert(skip_messages.end(), other.skip_messages_.begin(),
-                       other.skip_messages_.end());
+  skip_messages.insert(skip_messages.end(), skip_messages_.begin(), skip_messages_.end());
+  skip_messages.insert(skip_messages.end(), other.skip_messages_.begin(), other.skip_messages_.end());
 
-  return TestResults(errors_ + other.errors_, failed_ + other.failed_,
-                     passed_ + other.passed_, skipped_ + other.skipped_,
-                     total_ + other.total_, error_messages, failure_messages,
+  return TestResults(errors_ + other.errors_,
+                     failed_ + other.failed_,
+                     passed_ + other.passed_,
+                     skipped_ + other.skipped_,
+                     total_ + other.total_,
+                     error_messages,
+                     failure_messages,
                      skip_messages);
 }
 
-TestResults &TestResults::operator+=(const TestResults &other) {
-  error_messages_.insert(error_messages_.end(), other.error_messages_.begin(),
-                         other.error_messages_.end());
+TestResults& TestResults::operator+=(const TestResults& other) {
+  error_messages_.insert(error_messages_.end(), other.error_messages_.begin(), other.error_messages_.end());
   errors_ += other.errors_;
   failed_ += other.failed_;
-  failure_messages_.insert(failure_messages_.end(),
-                           other.failure_messages_.begin(),
-                           other.failure_messages_.end());
+  failure_messages_.insert(failure_messages_.end(), other.failure_messages_.begin(), other.failure_messages_.end());
   passed_ += other.passed_;
-  skip_messages_.insert(skip_messages_.end(), other.skip_messages_.begin(),
-                        other.skip_messages_.end());
+  skip_messages_.insert(skip_messages_.end(), other.skip_messages_.begin(), other.skip_messages_.end());
   skipped_ += other.skipped_;
   total_ += other.total_;
   return *this;
 }
 
-void PrintResults(std::ostream &os, TestResults results) {
+void PrintResults(std::ostream& os, TestResults results) {
   auto skip_messages = results.skip_messages();
   if (skip_messages.size() > 0) {
     os << "Skipped:" << endl;
-    for_each(skip_messages.begin(), skip_messages.end(),
-             [&os](const string &message) {
-               os << "🚧Skipped: " << message << endl;
-             });
+    for_each(skip_messages.begin(), skip_messages.end(), [&os](const string& message) {
+      os << "🚧Skipped: " << message << endl;
+    });
   }
   auto failure_messages = results.failure_messages();
   if (failure_messages.size() > 0) {
     os << "Failures:" << endl;
-    for_each(failure_messages.begin(), failure_messages.end(),
-             [&os](const string &message) {
-               os << "❌FAILED: " << message << endl;
-             });
+    for_each(failure_messages.begin(), failure_messages.end(), [&os](const string& message) {
+      os << "❌FAILED: " << message << endl;
+    });
   }
   auto error_messages = results.error_messages();
   if (error_messages.size() > 0) {
     os << "Errors:" << endl;
-    for_each(
-        error_messages.begin(), error_messages.end(),
-        [&os](const string &message) { os << "🔥ERROR: " << message << endl; });
+    for_each(error_messages.begin(), error_messages.end(), [&os](const string& message) {
+      os << "🔥ERROR: " << message << endl;
+    });
   }
   os << "Total tests: " << results.total() << endl;
   os << "Passed:      " << results.passed() << " ✅" << endl;
@@ -294,4 +312,4 @@ void PrintResults(std::ostream &os, TestResults results) {
 MaybeTestConfigureFunction DefaultTestConfigureFunction() {
   return std::nullopt;
 }
-} // End namespace Test
+}  // namespace TinyTest

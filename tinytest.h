@@ -52,14 +52,13 @@
 // Tuple printer from:
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple/31116392#58417285
 template <typename TChar, typename TTraits, typename... TArgs>
-auto &operator<<(std::basic_ostream<TChar, TTraits> &os,
-                 std::tuple<TArgs...> const &t) {
-  std::apply([&os](auto &&...args) { ((os << args << " "), ...); }, t);
+auto& operator<<(std::basic_ostream<TChar, TTraits>& os, std::tuple<TArgs...> const& t) {
+  std::apply([&os](auto&&... args) { ((os << args << " "), ...); }, t);
   return os;
 }
 
 template <typename TChar, typename TTraits, typename TItem>
-auto &operator<<(std::basic_ostream<TChar, TTraits> &os, std::vector<TItem> v) {
+auto& operator<<(std::basic_ostream<TChar, TTraits>& os, std::vector<TItem> v) {
   os << "[ ";
   for (auto it = v.begin(); it != v.end(); it++) {
     if (it != v.begin()) {
@@ -72,40 +71,38 @@ auto &operator<<(std::basic_ostream<TChar, TTraits> &os, std::vector<TItem> v) {
 }
 
 template <typename TChar, typename TTraits, typename TItem>
-auto &compare(std::basic_ostream<TChar, TTraits> &error_message,
-              std::vector<TItem> expected, std::vector<TItem> actual) {
+auto& compare(std::basic_ostream<TChar, TTraits>& error_message,
+              std::vector<TItem> expected,
+              std::vector<TItem> actual) {
   if (expected.size() != actual.size()) {
-    error_message << "size mismatch expected: " << expected.size()
-                  << ", actual: " << actual.size();
+    error_message << "size mismatch expected: " << expected.size() << ", actual: " << actual.size();
     return error_message;
   }
 
   for (size_t index = 0; index < expected.size(); index++) {
     if (expected[index] != actual[index]) {
-      error_message << "vectors differ at index " << index << ", \""
-                    << expected[index] << "\" != \"" << actual[index]
-                    << "\", expected: \"" << expected << "\", actual: \""
-                    << actual << "\"";
+      error_message << "vectors differ at index " << index << ", \"" << expected[index] << "\" != \"" << actual[index]
+                    << "\", expected: \"" << expected << "\", actual: \"" << actual << "\"";
       return error_message;
     }
   }
   return error_message;
 }
 
-namespace Test {
+namespace TinyTest {
 using std::string;
 using std::tuple;
 using std::vector;
 
 /// @brief
 class TestResults {
-public:
+ public:
   /// @brief Creates an empty TestResults instance representing no tests run.
   TestResults();
 
   /// @brief Creates a new TestResults instance that is a copy of other.
   /// @param other
-  TestResults(const TestResults &other);
+  TestResults(const TestResults& other);
 
   /// @brief Creates a new TestResults instance with specific counts.
   /// @param errors The number of errors while running the tests.
@@ -117,45 +114,48 @@ public:
   /// @param error_messages The list of error messages.
   /// @param failure_messages The list of failure messages.
   /// @param skip_messages The list of skip messages.
-  TestResults(uint32_t errors, uint32_t failed, uint32_t passed,
-              uint32_t skipped, uint32_t total,
+  TestResults(uint32_t errors,
+              uint32_t failed,
+              uint32_t passed,
+              uint32_t skipped,
+              uint32_t total,
               std::vector<std::string> error_messages,
               std::vector<std::string> failure_messages,
               std::vector<std::string> skip_messages);
 
   /// @brief Adds an error. This increments errors.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &error();
+  TestResults& error();
 
   /// @brief Adds an error with a message. This increments errors as well as
   /// saving the error message.
   /// @param message The error message.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &error(std::string message);
+  TestResults& error(std::string message);
 
   /// @brief Adds a failed test. This increments total and failed.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &fail();
+  TestResults& fail();
 
   /// @brief Adds a failed test with a message. This increments total and failed
   /// as well as saving the failure message.
   /// @param message The reason the test failed.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &fail(const std::string &message);
+  TestResults& fail(const std::string& message);
 
   /// @brief Adds a passed test. This increments total and passed.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &pass();
+  TestResults& pass();
 
   /// @brief Adds a skipped test. This increments total and skipped.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &skip();
+  TestResults& skip();
 
   /// @brief Adds a skipped test with a message. This increments total and
   /// skipped as well as saving the skip message.
   /// @param message The reason the test was skipped.
   /// @return A reference to this instance. Used for chaining.
-  TestResults &skip(const std::string &message);
+  TestResults& skip(const std::string& message);
 
   /// @brief Getter for the list of error messages.
   /// @return
@@ -192,15 +192,15 @@ public:
   /// @brief Returns the combination of this and another TestResults instance.
   /// @param other The other TestResults instance to add to this one.
   /// @return The combination of the two TestResults instances.
-  TestResults operator+(const TestResults &other) const;
+  TestResults operator+(const TestResults& other) const;
 
   /// @brief Adds another TestResults to this one and returns a reference to
   /// this instance.
   /// @param other The other TestResults instance to add to this one.
   /// @return A reference to this instance.
-  TestResults &operator+=(const TestResults &other);
+  TestResults& operator+=(const TestResults& other);
 
-private:
+ private:
   std::vector<std::string> error_messages_;
   uint32_t errors_;
   uint32_t failed_;
@@ -214,8 +214,7 @@ private:
 /// @brief
 /// @tparam TResult
 template <typename TResult>
-using TestCompareFunction =
-    std::function<bool(const TResult &expected, const TResult &actual)>;
+using TestCompareFunction = std::function<bool(const TResult& expected, const TResult& actual)>;
 
 /// @brief
 /// @tparam TResult
@@ -263,11 +262,13 @@ using TestTuple =
 /// @tparam TFunctionToTest
 /// @tparam ...TInputParams
 template <typename TResult, typename... TInputParams>
-using TestSuite =
-    std::tuple<std::string, std::function<TResult(TInputParams...)>,
-               std::vector<TestTuple<TResult, TInputParams...>>,
-               MaybeTestCompareFunction<TResult>, MaybeTestConfigureFunction,
-               MaybeTestConfigureFunction, bool>;
+using TestSuite = std::tuple<std::string,
+                             std::function<TResult(TInputParams...)>,
+                             std::vector<TestTuple<TResult, TInputParams...>>,
+                             MaybeTestCompareFunction<TResult>,
+                             MaybeTestConfigureFunction,
+                             MaybeTestConfigureFunction,
+                             bool>;
 
 // This function is called to execute a test suite. You provide it with some
 // configuration info, optional utility callback functions, and test data (input
@@ -366,14 +367,13 @@ using TestSuite =
 /// @param is_enabled If false none of these tests are run and they are all
 /// reported as skipped.
 template <typename TResult, typename... TInputParams>
-TestResults
-execute_suite(std::string suite_label,
-              std::function<TResult(TInputParams...)> function_to_test,
-              vector<TestTuple<TResult, TInputParams...>> tests,
-              MaybeTestCompareFunction<TResult> suite_compare = std::nullopt,
-              MaybeTestConfigureFunction before_all = std::nullopt,
-              MaybeTestConfigureFunction after_all = std::nullopt,
-              bool is_enabled = true) {
+TestResults execute_suite(std::string suite_label,
+                          std::function<TResult(TInputParams...)> function_to_test,
+                          vector<TestTuple<TResult, TInputParams...>> tests,
+                          MaybeTestCompareFunction<TResult> suite_compare = std::nullopt,
+                          MaybeTestConfigureFunction before_all = std::nullopt,
+                          MaybeTestConfigureFunction after_all = std::nullopt,
+                          bool is_enabled = true) {
   TestResults results;
   std::cout << "🚀Beginning Suite: " << suite_label << std::endl;
 
@@ -384,77 +384,74 @@ execute_suite(std::string suite_label,
   }
 
   // Step 2: Execute Tests
-  for_each(
-      tests.begin(), tests.end(),
-      [&suite_label, &function_to_test, &results,
-       &suite_compare](TestTuple<TResult, TInputParams...> test_data) {
-        // Step 2a: Extract our variables from the TestTuple.
-        const std::string &test_name = std::get<0>(test_data);
-        const std::string qualified_test_name = suite_label + "::" + test_name;
-        const TResult &expected_output = std::get<1>(test_data);
-        std::tuple<TInputParams...> input_params = std::get<2>(test_data);
-        MaybeTestCompareFunction<TResult> maybe_compare_function =
-            std::get<3>(test_data);
-        TestCompareFunction<TResult> compare_function =
-            maybe_compare_function.has_value() ? *maybe_compare_function
-            : suite_compare.has_value()
-                ? *suite_compare
-                : [](const TResult &l, const TResult &r) { return l == r; };
-        MaybeTestConfigureFunction before_each = std::get<4>(test_data);
-        MaybeTestConfigureFunction after_each = std::get<5>(test_data);
-        bool is_enabled = std::get<6>(test_data);
+  for_each(tests.begin(),
+           tests.end(),
+           [&suite_label, &function_to_test, &results, &suite_compare](TestTuple<TResult, TInputParams...> test_data) {
+             // Step 2a: Extract our variables from the TestTuple.
+             const std::string& test_name = std::get<0>(test_data);
+             const std::string qualified_test_name = suite_label + "::" + test_name;
+             const TResult& expected_output = std::get<1>(test_data);
+             std::tuple<TInputParams...> input_params = std::get<2>(test_data);
+             MaybeTestCompareFunction<TResult> maybe_compare_function = std::get<3>(test_data);
+             TestCompareFunction<TResult> compare_function =
+                 maybe_compare_function.has_value() ? *maybe_compare_function
+                 : suite_compare.has_value()        ? *suite_compare
+                                                    : [](const TResult& l, const TResult& r) { return l == r; };
+             MaybeTestConfigureFunction before_each = std::get<4>(test_data);
+             MaybeTestConfigureFunction after_each = std::get<5>(test_data);
+             bool is_enabled = std::get<6>(test_data);
 
-        if (!is_enabled) {
-          std::cout << " 🚧Skipping Test: " << test_name << std::endl;
-          results.skip(qualified_test_name);
-          return;
-        }
+             if (!is_enabled) {
+               std::cout << " 🚧Skipping Test: " << test_name << std::endl;
+               results.skip(qualified_test_name);
+               return;
+             }
 
-        // Step 2b: Test Setup
-        std::cout << "  Beginning Test: " << test_name << std::endl;
-        if (before_each.has_value()) {
-          (*before_each)();
-        }
+             // Step 2b: Test Setup
+             std::cout << "  Beginning Test: " << test_name << std::endl;
+             if (before_each.has_value()) {
+               (*before_each)();
+             }
 
-        TResult actual;
-        try {
-          // Step 2c: Execute the test method.
-          actual = std::apply(function_to_test, input_params);
-        } catch (const std::exception &ex) {
-          std::ostringstream os;
-          os << "Caught exception \"" << ex.what() << "\"";
-          results.error(qualified_test_name + " " + os.str());
-          std::cout << "    🔥ERROR: " << os.str() << std::endl;
-        } catch (const std::string &message) {
-          std::ostringstream os;
-          os << "Caught string \"" << message << "\"";
-          results.error(qualified_test_name + " " + os.str());
-          std::cout << "    🔥ERROR: " << os.str() << std::endl;
-        } catch (...) {
-          string message = "Caught something that is neither an std::exception "
-                           "nor an std::string.";
-          results.error(qualified_test_name + " " + message);
-          std::cout << "    🔥ERROR: " << message << std::endl;
-        }
+             TResult actual;
+             try {
+               // Step 2c: Execute the test method.
+               actual = std::apply(function_to_test, input_params);
+             } catch (const std::exception& ex) {
+               std::ostringstream os;
+               os << "Caught exception \"" << ex.what() << "\"";
+               results.error(qualified_test_name + " " + os.str());
+               std::cout << "    🔥ERROR: " << os.str() << std::endl;
+             } catch (const std::string& message) {
+               std::ostringstream os;
+               os << "Caught string \"" << message << "\"";
+               results.error(qualified_test_name + " " + os.str());
+               std::cout << "    🔥ERROR: " << os.str() << std::endl;
+             } catch (...) {
+               string message =
+                   "Caught something that is neither an std::exception "
+                   "nor an std::string.";
+               results.error(qualified_test_name + " " + message);
+               std::cout << "    🔥ERROR: " << message << std::endl;
+             }
 
-        // Step 2d: Pass or fail.
-        if (compare_function(expected_output, actual)) {
-          results.pass();
-          std::cout << "    ✅PASSED" << std::endl;
-        } else {
-          std::ostringstream os;
-          os << "expected: \"" << expected_output << "\", actual: \"" << actual
-             << "\"";
-          results.fail(qualified_test_name + " " + os.str());
-          std::cout << "    ❌FAILED: " << os.str() << std::endl;
-        }
+             // Step 2d: Pass or fail.
+             if (compare_function(expected_output, actual)) {
+               results.pass();
+               std::cout << "    ✅PASSED" << std::endl;
+             } else {
+               std::ostringstream os;
+               os << "expected: \"" << expected_output << "\", actual: \"" << actual << "\"";
+               results.fail(qualified_test_name + " " + os.str());
+               std::cout << "    ❌FAILED: " << os.str() << std::endl;
+             }
 
-        // Step 2e: Test Teardown
-        if (after_each.has_value()) {
-          (*after_each)();
-        }
-        std::cout << "  Ending Test: " << test_name << std::endl;
-      });
+             // Step 2e: Test Teardown
+             if (after_each.has_value()) {
+               (*after_each)();
+             }
+             std::cout << "  Ending Test: " << test_name << std::endl;
+           });
 
   // Step 3: Suite Teardown
   if (after_all.has_value()) {
@@ -482,17 +479,15 @@ execute_suite(std::string suite_label,
 /// @param is_enabled If false the test is reported as skipped. If true the test
 /// is run as normal.
 template <typename TResult, typename... TInputParams>
-TestResults
-execute_suite(std::string suite_label,
-              std::function<TResult(TInputParams...)> function_to_test,
-              std::initializer_list<TestTuple<TResult, TInputParams...>> tests,
-              MaybeTestCompareFunction<TResult> suite_compare = std::nullopt,
-              MaybeTestConfigureFunction before_all = std::nullopt,
-              MaybeTestConfigureFunction after_all = std::nullopt,
-              bool is_enabled = true) {
+TestResults execute_suite(std::string suite_label,
+                          std::function<TResult(TInputParams...)> function_to_test,
+                          std::initializer_list<TestTuple<TResult, TInputParams...>> tests,
+                          MaybeTestCompareFunction<TResult> suite_compare = std::nullopt,
+                          MaybeTestConfigureFunction before_all = std::nullopt,
+                          MaybeTestConfigureFunction after_all = std::nullopt,
+                          bool is_enabled = true) {
   std::vector test_data = std::vector(tests);
-  return execute_suite(suite_label, function_to_test, tests, suite_compare,
-                       before_all, after_all, is_enabled);
+  return execute_suite(suite_label, function_to_test, tests, suite_compare, before_all, after_all, is_enabled);
 }
 
 /// @brief
@@ -516,15 +511,14 @@ execute_suite(std::string suite_label,
 /// skipped for reporting purposes.
 /// @return A TestTuple suitable for use as a test run when calling test_fn.
 template <typename TResult, typename... TInputParams>
-TestTuple<TResult, TInputParams...>
-make_test(const string &test_name, const TResult &expected,
-          tuple<TInputParams...> input_params,
-          MaybeTestCompareFunction<TResult> test_compare_fn = std::nullopt,
-          MaybeTestConfigureFunction before_each = std::nullopt,
-          MaybeTestConfigureFunction after_each = std::nullopt,
-          bool is_enabled = true) {
-  return make_tuple(test_name, expected, input_params, test_compare_fn,
-                    before_each, after_each, is_enabled);
+TestTuple<TResult, TInputParams...> make_test(const string& test_name,
+                                              const TResult& expected,
+                                              tuple<TInputParams...> input_params,
+                                              MaybeTestCompareFunction<TResult> test_compare_fn = std::nullopt,
+                                              MaybeTestConfigureFunction before_each = std::nullopt,
+                                              MaybeTestConfigureFunction after_each = std::nullopt,
+                                              bool is_enabled = true) {
+  return make_tuple(test_name, expected, input_params, test_compare_fn, before_each, after_each, is_enabled);
 }
 
 /// @brief
@@ -540,27 +534,26 @@ make_test(const string &test_name, const TResult &expected,
 /// @param is_enabled
 /// @return
 template <typename TResult, typename TFunctionToTest, typename... TInputParams>
-TestSuite<TResult, TInputParams...>
-make_test_suite(const string &suite_name, TFunctionToTest function_to_test,
-                vector<TestTuple<TResult, TInputParams...>> test_data,
-                MaybeTestCompareFunction<TResult> compare = std::nullopt,
-                MaybeTestConfigureFunction before_each = std::nullopt,
-                MaybeTestConfigureFunction after_each = std::nullopt,
-                bool is_enabled = true) {
-  return make_tuple(suite_name, function_to_test, test_data, compare,
-                    before_each, after_each, is_enabled);
+TestSuite<TResult, TInputParams...> make_test_suite(const string& suite_name,
+                                                    TFunctionToTest function_to_test,
+                                                    vector<TestTuple<TResult, TInputParams...>> test_data,
+                                                    MaybeTestCompareFunction<TResult> compare = std::nullopt,
+                                                    MaybeTestConfigureFunction before_each = std::nullopt,
+                                                    MaybeTestConfigureFunction after_each = std::nullopt,
+                                                    bool is_enabled = true) {
+  return make_tuple(suite_name, function_to_test, test_data, compare, before_each, after_each, is_enabled);
 }
 
 template <typename TResult, typename TFunctionToTest, typename... TInputParams>
 TestSuite<TResult, TInputParams...> make_test_suite(
-    const string &suite_name, TFunctionToTest function_to_test,
+    const string& suite_name,
+    TFunctionToTest function_to_test,
     std::initializer_list<TestTuple<TResult, TInputParams...>> test_data,
     MaybeTestCompareFunction<TResult> compare = std::nullopt,
     MaybeTestConfigureFunction before_each = std::nullopt,
     MaybeTestConfigureFunction after_each = std::nullopt,
     bool is_enabled = true) {
-  return make_tuple(suite_name, function_to_test, test_data, compare,
-                    before_each, after_each, is_enabled);
+  return make_tuple(suite_name, function_to_test, test_data, compare, before_each, after_each, is_enabled);
 }
 
 /// @brief
@@ -568,8 +561,7 @@ TestSuite<TResult, TInputParams...> make_test_suite(
 /// @tparam TInputParams... The types of parameters sent to the test function.
 /// @param test_suite A tuple representing the test suite configuration.
 template <typename TResult, typename... TInputParams>
-TestResults
-execute_suite(const TestSuite<TResult, TInputParams...> &test_suite) {
+TestResults execute_suite(const TestSuite<TResult, TInputParams...>& test_suite) {
   return execute_suite<TResult, TInputParams...>(
       std::get<0>(test_suite), std::get<1>(test_suite), std::get<2>(test_suite)
       // TODO: make this work for the optional parts of the tuple too.
@@ -582,8 +574,7 @@ execute_suite(const TestSuite<TResult, TInputParams...> &test_suite) {
 /// @param second
 /// @return
 template <typename... TInputParams>
-MaybeTestConfigureFunction coalesce(MaybeTestConfigureFunction first,
-                                    MaybeTestConfigureFunction second) {
+MaybeTestConfigureFunction coalesce(MaybeTestConfigureFunction first, MaybeTestConfigureFunction second) {
   if (first.has_value()) {
     if (second.has_value()) {
       // This is the only place we actually need to combine them.
@@ -602,8 +593,8 @@ MaybeTestConfigureFunction coalesce(MaybeTestConfigureFunction first,
 /// @brief Writes a friendly version of results to the provided stream.
 /// @param os The stream to write to.
 /// @param results The TestResults to write.
-void PrintResults(std::ostream &os, TestResults results);
-} // End namespace Test
+void PrintResults(std::ostream& os, TestResults results);
+}  // End namespace TinyTest
 
 // TODO: Add TShared(*)(string /*test_name*/, UUID /*test_run_id*/)
 // allocate_shared_data to the test tuple to make some shared data that can be
@@ -616,4 +607,4 @@ void PrintResults(std::ostream &os, TestResults results);
 //   then the allocated resources they should be freed by test teardown
 //   function. Suite and/or test compare functions may consume this shared data,
 //   but it will not be shared with the execution of function_to_test.
-#endif // End !defined TEST_H__
+#endif  // End !defined TEST_H__
