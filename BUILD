@@ -9,6 +9,7 @@ cc_library(
 
 cc_test(
     name = "tinytest_test",
+    size = "small",
     srcs = ["tinytest_test.cpp"],
     deps = [
         ":tinytest",
