@@ -1,54 +1,24 @@
 #ifndef TEST_H__
 #define TEST_H__
 /***************************************************************************************
- * @file test.h
- *
- * @brief Defines structs and functions for implementing TinyTest.
- * @copyright
- * Copyright 2023 Tom Hicks
- * Licensed under the MIT license see the LICENSE file for details.
+ * @file tinytest.h                                                                    *
+ *                                                                                     *
+ * @brief Defines structs and functions for implementing TinyTest.                     *
+ * @copyright Copyright 2023 Tom Hicks <headhunter3@gmail.com>                         *
+ * Licensed under the MIT license see the LICENSE file for details.                    *
  ***************************************************************************************/
 
 #include <cstdint>
+#include <functional>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
-// Test lifecycle
-// suite_setup_function(); - This is called to allocate any suite level
-// resources. This is called once when the suite begins. These functions may be
-// called in parallel but execution will not proceed past this block until they
-// have all finished.
-//   test_setup_function(); - This is called once for every test in tests. You
-//   may use it to allocate resources or setup mocks, stubs, and spies.
-//   function_to_test(...); - This is called once for every test to execute the
-//   test. Only one of these test functions will actually be run for each test
-//   in tests. They should return true if the test passed, return false if the
-//   test failed or there was an error, and be nullptr if they should be
-//   skipped. The executed function will be called with expected_output and the
-//   result of function_to_test(...). They can be used to test functions with
-//   side effects, especially void functions. test_compare_function; - This is
-//   the highest priority compare function. If it is not nullptr then it will be
-//   called. suite_compare_function; - This is the second highest priority
-//   compare function. If test_compare_function is nullptr and this is not
-//   nullptr then it will be called.
-//   [](TResult expected, TResult actual) { return expected, actual; } - This is
-//   the lowest priority compare function. If all other compare functions are
-//   nullptr then this will be called to evaluate the test.
-//   test_teardown_function();
-//   - This is called once for every test in tests. You must free/release any
-//   resources allocated by test_setup_function.
-// This ends the parallel test functions section all tests will have completed
-// before execution proceeds. Collect reports - Ths step is not visible to the
-// user at this point, but data returned by all of the test functions is
-// collected here. This is where you will eventually be able to format/log data
-// for reports. suite_teardown_function(); - This is called after all test calls
-// have completed, all test_teardown_function calls have completed, and all test
-// reports/logs have been written. You should free any resources allocated in
-// suite_setup_function.
-
+// TODO: Document this.
 // Tuple printer from:
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple/31116392#58417285
 template <typename TChar, typename TTraits, typename... TArgs>
@@ -57,6 +27,7 @@ auto& operator<<(std::basic_ostream<TChar, TTraits>& os, std::tuple<TArgs...> co
   return os;
 }
 
+// TODO: Document this.
 template <typename TChar, typename TTraits, typename TItem>
 auto& operator<<(std::basic_ostream<TChar, TTraits>& os, std::vector<TItem> v) {
   os << "[ ";
@@ -70,6 +41,7 @@ auto& operator<<(std::basic_ostream<TChar, TTraits>& os, std::vector<TItem> v) {
   return os;
 }
 
+// TODO: Document this.
 template <typename TChar, typename TTraits, typename TItem>
 auto& compare(std::basic_ostream<TChar, TTraits>& error_message,
               std::vector<TItem> expected,
@@ -90,10 +62,6 @@ auto& compare(std::basic_ostream<TChar, TTraits>& error_message,
 }
 
 namespace TinyTest {
-using std::string;
-using std::tuple;
-using std::vector;
-
 /// @brief
 class TestResults {
  public:
@@ -159,7 +127,7 @@ class TestResults {
 
   /// @brief Getter for the list of error messages.
   /// @return
-  vector<string> error_messages();
+  std::vector<std::string> error_messages();
 
   /// @brief Getter for the count of errors.
   /// @return
@@ -171,7 +139,7 @@ class TestResults {
 
   /// @brief Getter for the list of failure messages.
   /// @return The list of failure messages.
-  vector<string> failure_messages();
+  std::vector<std::string> failure_messages();
 
   /// @brief Getter for the count of passed tests.
   /// @return The count of passed tests.
@@ -183,7 +151,7 @@ class TestResults {
 
   /// @brief Getter for the list of skip messages.
   /// @return The list of skip messages.
-  vector<string> skip_messages();
+  std::vector<std::string> skip_messages();
 
   /// @brief Getter for the count of total tests.
   /// @return The count of total tests run.
@@ -221,17 +189,21 @@ using TestCompareFunction = std::function<bool(const TResult& expected, const TR
 template <typename TResult>
 using MaybeTestCompareFunction = std::optional<TestCompareFunction<TResult>>;
 
+// TODO: Document this.
 template <typename TResult>
 MaybeTestCompareFunction<TResult> DefaultTestCompareFunction() {
   return std::nullopt;
 }
 
+// TODO: Document this.
 using TestConfigureFunction = std::function<void()>;
+// TODO: Document this.
 using MaybeTestConfigureFunction = std::optional<TestConfigureFunction>;
+// TOD: Document this.
 MaybeTestConfigureFunction DefaultTestConfigureFunction();
 
 // TODO: For some reason all hell breaks loose if test_name or expected output
-// are const&. Figure out why.
+// are const&. Figure out why. Probably need to use decay and make const& where we want it explicitly.
 /// @brief
 /// @tparam TResult
 /// @tparam ...TInputParams
@@ -347,7 +319,6 @@ using TestSuite = std::tuple<std::string,
 // collect_and_report_test_results(...). You can combine test results with
 // results = results + function_to_test(..); and then
 // collect_and_report_test_results on the aggregate TestResults value.
-
 /// @brief
 /// @tparam TResult The result type of the test.
 /// @tparam TInputParams... The types of parameters sent to the test function.
@@ -369,7 +340,7 @@ using TestSuite = std::tuple<std::string,
 template <typename TResult, typename... TInputParams>
 TestResults execute_suite(std::string suite_label,
                           std::function<TResult(TInputParams...)> function_to_test,
-                          vector<TestTuple<TResult, TInputParams...>> tests,
+                          std::vector<TestTuple<TResult, TInputParams...>> tests,
                           MaybeTestCompareFunction<TResult> suite_compare = std::nullopt,
                           MaybeTestConfigureFunction before_all = std::nullopt,
                           MaybeTestConfigureFunction after_all = std::nullopt,
@@ -428,7 +399,7 @@ TestResults execute_suite(std::string suite_label,
                results.error(qualified_test_name + " " + os.str());
                std::cout << "    🔥ERROR: " << os.str() << std::endl;
              } catch (...) {
-               string message =
+               std::string message =
                    "Caught something that is neither an std::exception "
                    "nor an std::string.";
                results.error(qualified_test_name + " " + message);
@@ -511,9 +482,9 @@ TestResults execute_suite(std::string suite_label,
 /// skipped for reporting purposes.
 /// @return A TestTuple suitable for use as a test run when calling test_fn.
 template <typename TResult, typename... TInputParams>
-TestTuple<TResult, TInputParams...> make_test(const string& test_name,
+TestTuple<TResult, TInputParams...> make_test(const std::string& test_name,
                                               const TResult& expected,
-                                              tuple<TInputParams...> input_params,
+                                              std::tuple<TInputParams...> input_params,
                                               MaybeTestCompareFunction<TResult> test_compare_fn = std::nullopt,
                                               MaybeTestConfigureFunction before_each = std::nullopt,
                                               MaybeTestConfigureFunction after_each = std::nullopt,
@@ -534,9 +505,9 @@ TestTuple<TResult, TInputParams...> make_test(const string& test_name,
 /// @param is_enabled
 /// @return
 template <typename TResult, typename TFunctionToTest, typename... TInputParams>
-TestSuite<TResult, TInputParams...> make_test_suite(const string& suite_name,
+TestSuite<TResult, TInputParams...> make_test_suite(const std::string& suite_name,
                                                     TFunctionToTest function_to_test,
-                                                    vector<TestTuple<TResult, TInputParams...>> test_data,
+                                                    std::vector<TestTuple<TResult, TInputParams...>> test_data,
                                                     MaybeTestCompareFunction<TResult> compare = std::nullopt,
                                                     MaybeTestConfigureFunction before_each = std::nullopt,
                                                     MaybeTestConfigureFunction after_each = std::nullopt,
@@ -546,7 +517,7 @@ TestSuite<TResult, TInputParams...> make_test_suite(const string& suite_name,
 
 template <typename TResult, typename TFunctionToTest, typename... TInputParams>
 TestSuite<TResult, TInputParams...> make_test_suite(
-    const string& suite_name,
+    const std::string& suite_name,
     TFunctionToTest function_to_test,
     std::initializer_list<TestTuple<TResult, TInputParams...>> test_data,
     MaybeTestCompareFunction<TResult> compare = std::nullopt,
@@ -595,16 +566,4 @@ MaybeTestConfigureFunction coalesce(MaybeTestConfigureFunction first, MaybeTestC
 /// @param results The TestResults to write.
 void PrintResults(std::ostream& os, TestResults results);
 }  // End namespace TinyTest
-
-// TODO: Add TShared(*)(string /*test_name*/, UUID /*test_run_id*/)
-// allocate_shared_data to the test tuple to make some shared data that can be
-// used in a thread safe way by setup, teardown, and evaluate steps of the test.
-// TODO: Add TShared to be returned by the setup functions, and consumed by the
-// evaluate and teardown functions.
-//   Suite setup/teardown functions should allocate/free.
-//   Test setup/teardown functions should consume the data allocated by suite
-//   setup. Test setup functions may allocate additional resources. If they do
-//   then the allocated resources they should be freed by test teardown
-//   function. Suite and/or test compare functions may consume this shared data,
-//   but it will not be shared with the execution of function_to_test.
 #endif  // End !defined TEST_H__
