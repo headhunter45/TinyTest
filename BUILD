@@ -4,6 +4,7 @@ cc_library(
     name = "tinytest",
     srcs = ["tinytest.cpp"],
     hdrs = ["tinytest.h"],
+    includes = ["."],
     visibility = ["//visibility:public"],
 )
 
