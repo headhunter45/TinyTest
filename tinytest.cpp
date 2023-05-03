@@ -64,78 +64,78 @@ TestResults::TestResults(uint32_t errors,
       skipped_(skipped),
       total_(total) {}
 
-TestResults& TestResults::error() {
+TestResults& TestResults::Error() {
   errors_++;
   return *this;
 }
 
-TestResults& TestResults::error(string message) {
+TestResults& TestResults::Error(string message) {
   errors_++;
   error_messages_.push_back(message);
   return *this;
 }
 
-TestResults& TestResults::fail() {
+TestResults& TestResults::Fail() {
   total_++;
   failed_++;
   return *this;
 }
 
-TestResults& TestResults::fail(const string& message) {
+TestResults& TestResults::Fail(const string& message) {
   total_++;
   failed_++;
   failure_messages_.push_back(message);
   return *this;
 }
 
-vector<string> TestResults::failure_messages() {
+vector<string> TestResults::FailureMessages() const {
   return failure_messages_;
 }
 
-TestResults& TestResults::pass() {
+TestResults& TestResults::Pass() {
   total_++;
   passed_++;
   return *this;
 }
 
-TestResults& TestResults::skip() {
+TestResults& TestResults::Skip() {
   total_++;
   skipped_++;
   return *this;
 }
 
-TestResults& TestResults::skip(const string& message) {
+TestResults& TestResults::Skip(const string& message) {
   total_++;
   skipped_++;
   skip_messages_.push_back(message);
   return *this;
 }
 
-vector<string> TestResults::skip_messages() {
+vector<string> TestResults::SkipMessages() const {
   return skip_messages_;
 }
 
-vector<string> TestResults::error_messages() {
+vector<string> TestResults::ErrorMessages() const {
   return error_messages_;
 }
 
-uint32_t TestResults::errors() {
+uint32_t TestResults::Errors() const {
   return errors_;
 }
 
-uint32_t TestResults::failed() {
+uint32_t TestResults::Failed() const {
   return failed_;
 }
 
-uint32_t TestResults::passed() {
+uint32_t TestResults::Passed() const {
   return passed_;
 }
 
-uint32_t TestResults::skipped() {
+uint32_t TestResults::Skipped() const {
   return skipped_;
 }
 
-uint32_t TestResults::total() {
+uint32_t TestResults::Total() const {
   return total_;
 }
 
@@ -173,32 +173,32 @@ TestResults& TestResults::operator+=(const TestResults& other) {
 }
 
 void PrintResults(std::ostream& os, TestResults results) {
-  auto skip_messages = results.skip_messages();
+  auto skip_messages = results.SkipMessages();
   if (skip_messages.size() > 0) {
     os << "Skipped:" << endl;
     for_each(skip_messages.begin(), skip_messages.end(), [&os](const string& message) {
       os << "🚧Skipped: " << message << endl;
     });
   }
-  auto failure_messages = results.failure_messages();
+  auto failure_messages = results.FailureMessages();
   if (failure_messages.size() > 0) {
     os << "Failures:" << endl;
     for_each(failure_messages.begin(), failure_messages.end(), [&os](const string& message) {
       os << "❌FAILED: " << message << endl;
     });
   }
-  auto error_messages = results.error_messages();
+  auto error_messages = results.ErrorMessages();
   if (error_messages.size() > 0) {
     os << "Errors:" << endl;
     for_each(error_messages.begin(), error_messages.end(), [&os](const string& message) {
       os << "🔥ERROR: " << message << endl;
     });
   }
-  os << "Total tests: " << results.total() << endl;
-  os << "Passed:      " << results.passed() << " ✅" << endl;
-  os << "Failed:      " << results.failed() << " ❌" << endl;
-  os << "Skipped:     " << results.skipped() << " 🚧" << endl;
-  os << "Errors:      " << results.errors() << " 🔥" << endl;
+  os << "Total tests: " << results.Total() << endl;
+  os << "Passed:      " << results.Passed() << " ✅" << endl;
+  os << "Failed:      " << results.Failed() << " ❌" << endl;
+  os << "Skipped:     " << results.Skipped() << " 🚧" << endl;
+  os << "Errors:      " << results.Errors() << " 🔥" << endl;
 }
 
 // End TestResults methods.
@@ -206,4 +206,41 @@ void PrintResults(std::ostream& os, TestResults results) {
 MaybeTestConfigureFunction DefaultTestConfigureFunction() {
   return std::nullopt;
 }
+
+MaybeTestConfigureFunction Coalesce(MaybeTestConfigureFunction first, MaybeTestConfigureFunction second) {
+  if (first.has_value()) {
+    if (second.has_value()) {
+      // This is the only place we actually need to combine them.
+      return [&first, &second]() {
+        first.value()();
+        second.value()();
+      };
+    } else {
+      return first;
+    }
+  } else {
+    return second;
+  }
+}
+
+// Utility functions.
+TestResults& SkipTest(TestResults& results,
+                      const std::string& suite_label,
+                      const std::string& test_label,
+                      std::optional<const std::string> reason) {
+  std::string qualified_test_label = suite_label + "::" + test_label;
+  std::cout << "  🚧Skipping Test: " << test_label;
+  if (reason.has_value()) {
+    std::cout << " because " << reason.value();
+  }
+  std::cout << std::endl;
+  results.Skip(qualified_test_label + (reason.has_value() ? " because " + reason.value() : ""));
+  return results;
+}
+
+// TODO: Factor out the pretty printing into a separate module so it can be tested separately.
+// TODO: Consider making separate files for test suite, tests, test cases, and test results.
+// TODO: Come up with a way to autogenerat a main function that runs all tests in a *_test.cpp file.
+// TODO: Come up with a way to aggregate TestResults over multiple c++ files when running under bazel.
+// TODO: Create a Makefile to build as a library.
 }  // namespace TinyTest
