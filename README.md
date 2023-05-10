@@ -13,3 +13,7 @@ TinyTest is a minimal testing library. The name might change soon, because I rea
 9.  This ends the parallel test functions section all tests in this suite will have completed before execution proceeds.
 10. Collect reports - This step is not visible to the user at this point, but data returned by all of the test functions is collected here. This is were you will eventually be able to format/log data for reports.
 11. suite_teardown_function() - This is called after all tests calls in this suite have completed, all test_teardown_function calls have completed, and all test reports/logs have been written. You should free any resources allocated in suite_setup_function.
+
+## TODO:
+* Replace use of overridden operator<< with PrettyPrint function.
+* Make ExecuteSuite work even if expected and actual are wstring, wstring_view, or wchar_t*
