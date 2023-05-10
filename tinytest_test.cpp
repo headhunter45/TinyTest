@@ -42,74 +42,6 @@ using TinyTest::PrintResults;
 using TinyTest::TestResults;
 using TinyTest::TestSuite;
 using TinyTest::TestTuple;
-using TinyTest::operator<<;
-
-TEST(TuplePrinter, ShouldPrintAnEmptyTuple) {
-  ostringstream os;
-  auto tuple = make_tuple();
-  os << tuple;
-  // Ideally something like "[]" or "Tuple: []"
-  EXPECT_THAT(os.str(), Eq("[]"));
-}
-
-TEST(TuplePrinter, ShouldPrintATupleOfOneString) {
-  ostringstream os;
-  auto tuple = make_tuple("asdf");
-  os << tuple;
-  // Ideally this wouldn't have a space at the end.
-  EXPECT_THAT(os.str(), Eq("[ \"asdf\" ]"));
-}
-
-TEST(TuplePrinter, ShouldPrintATupleOfTwoIntegers) {
-  ostringstream os;
-  auto tuple = make_tuple(69, 420);
-  os << tuple;
-  EXPECT_THAT(os.str(), Eq("[ 69, 420 ]"));
-}
-
-TEST(TuplePrinter, ShouldPrintATupleOfTwoStrings) {
-  ostringstream os;
-  auto tuple = make_tuple("first", "second");
-  os << tuple;
-  EXPECT_THAT(os.str(), Eq("[ \"first\", \"second\" ]"));
-}
-
-TEST(TuplePrinter, ShouldPrintATupleOfOneStringAndOneInteger) {
-  ostringstream os;
-  auto tuple = make_tuple("this is a string that ends with 69", 420);
-  os << tuple;
-  EXPECT_THAT(os.str(), Eq("[ \"this is a string that ends with 69\", 420 ]"));
-}
-
-TEST(TuplePrinter, ShouldPringATupleOfStringsContainingSpaces) {
-  ostringstream os;
-  auto tuple = make_tuple(" ", "  ", "   ", "    ");
-  os << tuple;
-  EXPECT_THAT(os.str(), Eq("[ \" \", \"  \", \"   \", \"    \" ]"));
-}
-
-TEST(VectorPrinter, ShouldPrintAnEmptyVector) {
-  ostringstream os;
-  vector value = vector({1, 2, 3, 4});
-  os << value;
-  EXPECT_THAT(os.str(), Eq("[ 1, 2, 3, 4 ]"));
-}
-
-TEST(VectorPrinter, ShouldPrintAVectorOfCStrings) {
-  ostringstream os;
-  vector value = vector({"asdf", "fdsa", "lemon", "cherry"});
-  os << value;
-  // Ideally "[ \"asdf\", \"fdsa\", \"lemon\", \"cherry\" ]"
-  EXPECT_THAT(os.str(), Eq("[ \"asdf\", \"fdsa\", \"lemon\", \"cherry\" ]"));
-}
-
-TEST(VectorPrinter, ShouldPrintAVectorOfStrings) {
-  ostringstream os;
-  vector value = vector<string>({"asdf", "fdsa", "lemon", "cherry"});
-  os << value;
-  // Ideally "[ \"asdf\", \"fdsa\", \"lemon\", \"cherry\" ]"
-  EXPECT_THAT(os.str(), Eq("[ \"asdf\", \"fdsa\", \"lemon\", \"cherry\" ]"));
-}
 
 TEST(VectorCompare, ShouldPrintSizeMismatch) {
   ostringstream os;
@@ -124,9 +56,8 @@ TEST(VectorCompare, ShouldPrintVectorsDifferAtIndexZero) {
   vector first = vector({1, 2, 3, 4});
   vector second = vector({0, 1, 2, 3});
   Compare(os, first, second);
-  EXPECT_THAT(
-      os.str(),
-      Eq("vectors differ at index 0, \"1\" != \"0\", expected: \"[ 1, 2, 3, 4 ]\", actual: \"[ 0, 1, 2, 3 ]\""));
+  EXPECT_THAT(os.str(),
+              Eq((string) "vectors differ at index 0, 1 != 0, expected: [ 1, 2, 3, 4 ], actual: [ 0, 1, 2, 3 ]"));
 }
 
 TEST(VectorCompare, ShouldPrintVectorsDifferAtEnd) {
@@ -134,9 +65,7 @@ TEST(VectorCompare, ShouldPrintVectorsDifferAtEnd) {
   vector first = vector({1, 2, 3, 4});
   vector second = vector({1, 2, 3, 0});
   Compare(os, first, second);
-  EXPECT_THAT(
-      os.str(),
-      Eq("vectors differ at index 3, \"4\" != \"0\", expected: \"[ 1, 2, 3, 4 ]\", actual: \"[ 1, 2, 3, 0 ]\""));
+  EXPECT_THAT(os.str(), Eq("vectors differ at index 3, 4 != 0, expected: [ 1, 2, 3, 4 ], actual: [ 1, 2, 3, 0 ]"));
 }
 
 TEST(VectorCompare, ShouldPrintNothingWhenVectorsAreEqual) {
@@ -881,7 +810,7 @@ TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASingleFailure) {
               Eq(
                   R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
-    ❌FAILED: expected: "0", actual: "1"
+    ❌FAILED: expected: 0, actual: 1
   Ending Test: Test Name
 Ending Suite: My Suite
 )test"));
@@ -1053,7 +982,7 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAnExceptionThrownByATest) {
                   R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught exception "std::exception".
-    ❌FAILED: expected: "1", actual: "0"
+    ❌FAILED: expected: 1, actual: 0
   Ending Test: Test Name
 Ending Suite: My Suite
 )test"));
@@ -1113,7 +1042,7 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAStringThrownByATest) {
                   R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught string "burp".
-    ❌FAILED: expected: "1", actual: "0"
+    ❌FAILED: expected: 1, actual: 0
   Ending Test: Test Name
 Ending Suite: My Suite
 )test"));
@@ -1173,7 +1102,7 @@ TEST(ExecuteSuiteWithParams, ShouldCatchACStringThrownByATest) {
                   R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught c-string "burp".
-    ❌FAILED: expected: "1", actual: "0"
+    ❌FAILED: expected: 1, actual: 0
   Ending Test: Test Name
 Ending Suite: My Suite
 )test"));
@@ -1233,7 +1162,7 @@ TEST(ExecuteSuiteWithParams, ShouldCatchSomethingElseThrownByATest) {
                   R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught something that is neither an std::exception nor an std::string.
-    ❌FAILED: expected: "1", actual: "0"
+    ❌FAILED: expected: 1, actual: 0
   Ending Test: Test Name
 Ending Suite: My Suite
 )test"));

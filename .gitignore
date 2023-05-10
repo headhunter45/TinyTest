@@ -1,8 +1,9 @@
 /.vscode/
 /bazel-*
 /build/
-/tmp/
 /docs/
+/external
+/tmp/
 
 # Prerequisites
 *.d

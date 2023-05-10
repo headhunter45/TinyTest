@@ -35,6 +35,7 @@ cc_library(
     hdrs = ["tinytest.h"],
     includes = ["*.h"],
     visibility = ["//visibility:public"],
+    deps = ["@cpputils//:pretty_print"],
 )
 
 cc_test(

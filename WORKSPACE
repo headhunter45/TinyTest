@@ -53,19 +53,8 @@ http_archive(
 )
 
 http_archive(
-    name = "com_google_absl",
-    strip_prefix = "abseil-cpp-b971ac5250ea8de900eae9f95e06548d14cd95fe",
-    urls = ["https://github.com/abseil/abseil-cpp/archive/b971ac5250ea8de900eae9f95e06548d14cd95fe.zip"],
-)
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "f7be3474d42aae265405a592bb7da8e171919d74c16f082a5457840f06054728",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/1.2.1/bazel-skylib-1.2.1.tar.gz"],
-)
-
-http_archive(
     name = "cpputils",
+    sha256 = "2d1f0904640706ad9b88bfc2acf03225af6d9cf9aca0863b6cff8ceeb976aca6",
     strip_prefix = "cpp-utils-52de4b8bc2f6d8118dba94ade47f70522ba87b56",
-    urls = ["https://github.com/headhunter45/TinyTest/archive/460c9492d927689b9db7f28d8742705dc0bbee62.zip"],
+    urls = ["https://github.com/headhunter45/cpp-utils/archive/52de4b8bc2f6d8118dba94ade47f70522ba87b56.tar.gz"],
 )
