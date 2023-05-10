@@ -2,6 +2,7 @@
 /bazel-*
 /build/
 /tmp/
+/docs/
 
 # Prerequisites
 *.d
