@@ -28,6 +28,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.     #
 #                                                                                                                      #
 ########################################################################################################################
+workspace(name = "TinyTest")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Hedron's Compile Commands Extractor for Bazel
@@ -53,8 +55,8 @@ http_archive(
 )
 
 http_archive(
-    name = "cpputils",
-    sha256 = "2d1f0904640706ad9b88bfc2acf03225af6d9cf9aca0863b6cff8ceeb976aca6",
-    strip_prefix = "cpp-utils-52de4b8bc2f6d8118dba94ade47f70522ba87b56",
-    urls = ["https://github.com/headhunter45/cpp-utils/archive/52de4b8bc2f6d8118dba94ade47f70522ba87b56.tar.gz"],
+    name = "CPPUtils",
+    sha256 = "f028c839d145435d0c7ab85d276412c6c368a2fba9879fc4ba42f140cc186d91",
+    strip_prefix = "cpp-utils-3dd951eee9ec4e1fc66644e2868c578c99f81154",
+    urls = ["https://github.com/headhunter45/cpp-utils/archive/3dd951eee9ec4e1fc66644e2868c578c99f81154.tar.gz"],
 )
