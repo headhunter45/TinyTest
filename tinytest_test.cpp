@@ -404,8 +404,8 @@ TEST(MakeTest, ShouldMakeTests) {
 }
 
 TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
@@ -416,9 +416,9 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
-      "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first = {
+  TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
+      "Test Name", "Expected", make_tuple((string) "text", (size_t)0), test_Compare, before_each, after_each, false);
+  TestSuite<string, string, size_t> first = {
       "Suite Name",
       fnToTest,
       {
@@ -441,9 +441,9 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
@@ -452,8 +452,8 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
@@ -464,9 +464,9 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
+  TestTuple<string, string, size_t> test_run = MakeTest<string, string, int>(
       "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first =
+  TestSuite<string, string, size_t> first =
       MakeTestSuite("Suite Name", fnToTest, {test_run}, suite_Compare, before_all, after_all, false);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Name"));
@@ -481,9 +481,9 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
@@ -492,8 +492,8 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
@@ -504,26 +504,26 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
+  TestTuple<string, string, size_t> test_run = MakeTest<string, string, int>(
       "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first =
+  TestSuite<string, string, size_t> first =
       MakeTestSuite("Suite Two", fnToTest, {test_run}, suite_Compare, before_all, after_all, true);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Two"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
   EXPECT_THAT(get<2>(first).size(), Eq(1));
-  EXPECT_THAT(get<3>(first), Ne(nullopt));
-  EXPECT_THAT(get<4>(first), Ne(nullopt));
-  EXPECT_THAT(get<5>(first), Ne(nullopt));
+  EXPECT_THAT(get<3>(first).has_value(), Eq(true));
+  EXPECT_THAT(get<4>(first).has_value(), Eq(true));
+  EXPECT_THAT(get<5>(first).has_value(), Eq(true));
   EXPECT_THAT(get<6>(first), Eq(true));
 
   auto test_data = *get<2>(first).begin();
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
