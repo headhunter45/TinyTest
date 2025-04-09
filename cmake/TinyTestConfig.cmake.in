@@ -1,0 +1,59 @@
+# TinyTest CMake configuration file
+@PACKAGE_INIT@
+
+# Set the include directories
+set(TINYTEST_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/include")
+
+# Set the library directories
+set(TINYTEST_LIBRARY_DIRS "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@")
+
+# Handle dependencies
+include(CMakeFindDependencyMacro)
+
+# Set options for using CPPUtils
+option(TINYTEST_USE_SYSTEM_CPPUTILS "Use system-installed CPPUtils instead of downloading" OFF)
+
+# Find or fetch CPPUtils
+if(NOT TINYTEST_USE_SYSTEM_CPPUTILS)
+  include(FetchContent)
+  if(NOT TARGET pretty_print)
+    FetchContent_Declare(
+      cpputils
+      GIT_REPOSITORY https://github.com/headhunter45/cpp-utils.git
+      GIT_TAG e75c0ed9cb86c1a1e1ee842f2f0240b07178ed10
+    )
+    # Disable tests and examples
+    set(CPPUTILS_BUILD_TESTS OFF CACHE BOOL "Disable CPPUtils tests" FORCE)
+    set(CPPUTILS_BUILD_EXAMPLES OFF CACHE BOOL "Disable CPPUtils examples" FORCE)
+    FetchContent_MakeAvailable(cpputils)
+  endif()
+else()
+  find_dependency(CPPUtils REQUIRED)
+endif()
+
+# Find the TinyTest library
+find_library(TINYTEST_LIBRARY 
+  NAMES tinytest
+  HINTS ${TINYTEST_LIBRARY_DIRS}
+  REQUIRED
+)
+
+# Set the LIBRARIES variable
+set(TINYTEST_LIBRARIES ${TINYTEST_LIBRARY})
+
+# Create imported target TinyTest::tinytest
+if(NOT TARGET TinyTest::tinytest)
+  add_library(TinyTest::tinytest UNKNOWN IMPORTED)
+  set_target_properties(TinyTest::tinytest PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${TINYTEST_INCLUDE_DIRS}"
+    IMPORTED_LOCATION "${TINYTEST_LIBRARY}"
+  )
+  
+  # Link against CPPUtils
+  if(TARGET pretty_print)
+    target_link_libraries(TinyTest::tinytest INTERFACE pretty_print)
+  endif()
+endif()
+
+# Check that all required components are found
+check_required_components(TinyTest) 
