@@ -115,6 +115,11 @@ jobs:
           sudo apt-get install -y unzip
         if: runner.os == 'Linux'
 
+      # Ensure build directory exists properly
+      - name: Initialize Build Directory
+        shell: bash
+        run: rm -rf "${{github.workspace}}/build" && mkdir -p "${{github.workspace}}/build/CMakeFiles"
+
       # Configure CMake
       - name: Configure CMake
         run: >
