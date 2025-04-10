@@ -1,18 +1,22 @@
 @echo off
-:: Helper script to build TinyTest with CMake on Windows
+setlocal enabledelayedexpansion
 
-:: Create build directory if it doesn't exist
-if not exist build mkdir build
-cd build
+REM Create build directory if it doesn't exist
+if not exist build_ci mkdir build_ci
+cd build_ci
 
-:: Configure with CMake
-echo Configuring with CMake...
-cmake .. %*
+REM Use the same CMake settings as in CI
+cmake .. ^
+  -DCMAKE_BUILD_TYPE=Debug ^
+  -DTINYTEST_BUILD_SHARED_LIBS=OFF ^
+  -DBUILD_TESTING=ON
 
-:: Build
-echo Building...
-cmake --build . --config Release
+REM Build the project
+cmake --build . --config Debug
 
-echo Build complete!
-echo To run tests: cd build ^&^& ctest -C Release
-echo To install: cd build ^&^& cmake --install . --config Release 
+REM Run tests
+ctest -C Debug --output-on-failure
+
+echo "Build complete!"
+echo "To run tests: cd build_ci && ctest -C Debug"
+echo "To install: cd build_ci && cmake --install . --config Debug" 
