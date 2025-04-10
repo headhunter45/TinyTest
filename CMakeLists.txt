@@ -109,6 +109,7 @@ if(NOT TINYTEST_USE_SYSTEM_CPPUTILS)
   # Disable CPPUtils tests to avoid conflicts with our targets
   set(CPPUTILS_BUILD_TESTS OFF CACHE BOOL "Disable CPPUtils tests" FORCE)
   set(CPPUTILS_ENABLE_TESTING OFF CACHE BOOL "Disable CPPUtils testing framework" FORCE)
+  set(CPPUTILS_SKIP_GOOGLETEST ON CACHE BOOL "Disable Google Test fetching in CPPUtils" FORCE)
   
   FetchContent_Declare(
     cpputils
@@ -121,10 +122,20 @@ if(NOT TINYTEST_USE_SYSTEM_CPPUTILS)
   if(NOT cpputils_POPULATED)
     FetchContent_Populate(cpputils)
     
+    # Try to patch the CPPUtils CMakeLists.txt to prevent Google Test fetching
+    if(EXISTS "${cpputils_SOURCE_DIR}/CMakeLists.txt")
+      file(READ "${cpputils_SOURCE_DIR}/CMakeLists.txt" CPPUTILS_CMAKE_CONTENT)
+      string(REPLACE "FetchContent_MakeAvailable(googletest)" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
+      string(REPLACE "find_package(GTest REQUIRED)" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
+      string(REPLACE "FetchContent_Declare(googletest" "# Disabled FetchContent_Declare(googletest" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
+      file(WRITE "${cpputils_SOURCE_DIR}/CMakeLists.txt" "${CPPUTILS_CMAKE_CONTENT}")
+    endif()
+    
     # Set variables to prevent conflicts before we include the CMakeLists.txt
     set(CPPUTILS_BUILD_TESTS OFF CACHE BOOL "Disable CPPUtils tests" FORCE)
     set(CPPUTILS_BUILD_EXAMPLES OFF CACHE BOOL "Disable CPPUtils examples" FORCE)
     set(CPPUTILS_ENABLE_TESTING OFF CACHE BOOL "Disable CPPUtils testing framework" FORCE)
+    set(CPPUTILS_SKIP_GOOGLETEST ON CACHE BOOL "Disable Google Test fetching in CPPUtils" FORCE)
     
     # Store original flags
     set(CMAKE_CXX_FLAGS_ORIG ${CMAKE_CXX_FLAGS})
