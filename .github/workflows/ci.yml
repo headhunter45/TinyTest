@@ -115,16 +115,10 @@ jobs:
           sudo apt-get install -y unzip
         if: runner.os == 'Linux'
 
-      # Create build directory
-      - name: Create Build Directory
-        shell: bash
-        run: mkdir -p "${{github.workspace}}/build"
-
       # Configure CMake
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build
         run: >
-          cmake ${{github.workspace}}
+          cmake -B ${{github.workspace}}/build -S ${{github.workspace}}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DTINYTEST_BUILD_SHARED_LIBS=${{ matrix.shared_libs }}
           -DBUILD_TESTING=ON
