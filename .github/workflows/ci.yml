@@ -136,11 +136,56 @@ jobs:
         working-directory: ${{github.workspace}}/build
         run: cmake --build . --config ${{ matrix.build_type }}
 
-      # Test
-      - name: Test
+      # Test - Run directly instead of using ctest
+      - name: Test (Unix)
+        if: runner.os != 'Windows'
         working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{ matrix.build_type }} --output-on-failure
-        
+        run: |
+          echo "Running TinyTest tests directly..."
+          
+          # Find the test executable
+          if [ -f "tinytest_test" ]; then
+            TEST_EXEC="./tinytest_test"
+          elif [ -f "tinytest_tests" ]; then
+            TEST_EXEC="./tinytest_tests"
+          elif [ -f "${{ matrix.build_type }}/tinytest_test" ]; then
+            TEST_EXEC="./${{ matrix.build_type }}/tinytest_test"
+          elif [ -f "${{ matrix.build_type }}/tinytest_tests" ]; then
+            TEST_EXEC="./${{ matrix.build_type }}/tinytest_tests"
+          else
+            echo "Cannot find test executable!"
+            exit 1
+          fi
+          
+          # Run the test
+          $TEST_EXEC
+          
+      # Test - for Windows
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: ${{github.workspace}}/build
+        shell: pwsh
+        run: |
+          Write-Host "Running TinyTest tests directly..."
+          
+          # Find the test executable
+          $testExec = $null
+          if (Test-Path "tinytest_test.exe") {
+            $testExec = ".\tinytest_test.exe"
+          } elseif (Test-Path "tinytest_tests.exe") {
+            $testExec = ".\tinytest_tests.exe"
+          } elseif (Test-Path "${{ matrix.build_type }}\tinytest_test.exe") {
+            $testExec = ".\${{ matrix.build_type }}\tinytest_test.exe"
+          } elseif (Test-Path "${{ matrix.build_type }}\tinytest_tests.exe") {
+            $testExec = ".\${{ matrix.build_type }}\tinytest_tests.exe"
+          } else {
+            Write-Host "Cannot find test executable!"
+            exit 1
+          }
+          
+          # Run the test
+          & $testExec
+
   # Verify installation - simplified version that doesn't compile code
   build-and-install:
     name: Installation Test
