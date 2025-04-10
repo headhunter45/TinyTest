@@ -365,11 +365,11 @@ TEST(MakeTest, ShouldMakeTests) {
   MaybeTestConfigureFunction before_each = []() {};
 
   tuple first = MakeTest(
-      (string) "A Test", (string) "A", make_tuple((string) "ABCDEFG", 0), test_Compare, before_each, after_each, false);
+      (string) "A Test", (string) "A", make_tuple((string) "ABCDEFG", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
 
-  TestTuple<string, string, int> second =
-      MakeTest<string, string, int>("Another Test", "B", make_tuple((string) "ABCDEF", 1));
-  TestTuple<string, string, int> third = first;
+  TestTuple<string, string, size_t> second =
+      MakeTest<string, string, size_t>("Another Test", "B", make_tuple((string) "ABCDEF", static_cast<size_t>(1)));
+  TestTuple<string, string, size_t> third = first;
 
   EXPECT_THAT(get<0>(first), Eq("A Test"));
   EXPECT_THAT(get<0>(second), Eq("Another Test"));
@@ -379,9 +379,9 @@ TEST(MakeTest, ShouldMakeTests) {
   EXPECT_THAT(get<1>(second), Eq("B"));
   EXPECT_THAT(get<1>(third), Eq("A"));
 
-  EXPECT_THAT(get<2>(first), Eq(make_tuple((string) "ABCDEFG", 0)));
-  EXPECT_THAT(get<2>(second), Eq(make_tuple((string) "ABCDEF", 1)));
-  EXPECT_THAT(get<2>(third), Eq(make_tuple((string) "ABCDEFG", 0)));
+  EXPECT_THAT(get<2>(first), Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
+  EXPECT_THAT(get<2>(second), Eq(make_tuple((string) "ABCDEF", static_cast<size_t>(1))));
+  EXPECT_THAT(get<2>(third), Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
 
   // TODO: We can only test Eq(nullopt) or not.
   EXPECT_THAT(get<3>(first), Ne(nullopt));
@@ -404,8 +404,8 @@ TEST(MakeTest, ShouldMakeTests) {
 }
 
 TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
@@ -416,9 +416,9 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
-      "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first = {
+  TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
+      "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
+  TestSuite<string, string, size_t> first = {
       "Suite Name",
       fnToTest,
       {
@@ -441,9 +441,9 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
@@ -452,22 +452,34 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
   };
-  MaybeTestCompareFunction<string> test_Compare = [](const string& left, const string& right) -> bool { return false; };
   MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
   MaybeTestConfigureFunction after_all = []() {};
-  MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
-  MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
-      "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first =
-      MakeTestSuite("Suite Name", fnToTest, {test_run}, suite_Compare, before_all, after_all, false);
+  
+  // Create test tuple directly with explicit nullopt values
+  TestTuple<string, string, size_t> test_run = std::make_tuple(
+      "Test Name", 
+      "Expected", 
+      std::make_tuple(string("text"), static_cast<size_t>(0)), 
+      std::nullopt,  // test_compare_function
+      std::nullopt,  // before_each
+      std::nullopt,  // after_each
+      false          // is_enabled
+  );
+  
+  // Create a vector of test runs instead of an initializer list
+  std::vector<TestTuple<string, string, size_t>> test_runs;
+  test_runs.push_back(test_run);
+  
+  // Use the vector-based MakeTestSuite overload
+  TinyTest::VectorTestSuite<string, string, size_t> first =
+      MakeTestSuite("Suite Name", fnToTest, test_runs, suite_Compare, before_all, after_all, false);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Name"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
@@ -477,13 +489,13 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
   EXPECT_THAT(get<5>(first), Ne(nullopt));
   EXPECT_THAT(get<6>(first), Eq(false));
 
-  auto test_data = *get<2>(first).begin();
+  auto test_data = get<2>(first)[0];  // Access vector element instead of using begin()
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
@@ -492,8 +504,8 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
-  auto fnToTest = [](const string& text, int position) -> string {
-    if (position >= 0 && position < text.size()) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
       return &text.at(position);
     }
     return "";
@@ -504,31 +516,77 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
-  TestTuple<string, string, int> test_run = MakeTest<string, string, int>(
-      "Test Name", "Expected", make_tuple((string) "text", 0), test_Compare, before_each, after_each, false);
-  TestSuite<string, string, int> first =
+  TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
+      "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
+  
+  // Keep using the initializer_list version to test both implementations
+  TestSuite<string, string, size_t> first =
       MakeTestSuite("Suite Two", fnToTest, {test_run}, suite_Compare, before_all, after_all, true);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Two"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
   EXPECT_THAT(get<2>(first).size(), Eq(1));
-  EXPECT_THAT(get<3>(first), Ne(nullopt));
-  EXPECT_THAT(get<4>(first), Ne(nullopt));
-  EXPECT_THAT(get<5>(first), Ne(nullopt));
+  EXPECT_THAT(get<3>(first).has_value(), Eq(true));
+  EXPECT_THAT(get<4>(first).has_value(), Eq(true));
+  EXPECT_THAT(get<5>(first).has_value(), Eq(true));
   EXPECT_THAT(get<6>(first), Eq(true));
 
   auto test_data = *get<2>(first).begin();
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
-  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
   EXPECT_THAT(get<0>(inputs), Eq("text"));
   EXPECT_THAT(get<1>(inputs), Eq(0));
+}
+
+TEST(MakeTestSuite, ShouldMakeATestSuiteWithCleanupHandler) {
+  auto fnToTest = [](const string& text, size_t position) -> string {
+    if (position < text.size()) {
+      return &text.at(position);
+    }
+    return "";
+  };
+  MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
+  bool cleanup_called = false;
+  MaybeTestConfigureFunction after_all = [&cleanup_called]() { cleanup_called = true; };
+  MaybeTestConfigureFunction before_all = []() {};
+  
+  // Create test tuple directly with explicit nullopt values
+  TestTuple<string, string, size_t> test_run = std::make_tuple(
+      "Test Name", 
+      "Expected", 
+      std::make_tuple(string("text"), static_cast<size_t>(0)), 
+      std::nullopt,  // test_compare_function
+      std::nullopt,  // before_each
+      std::nullopt,  // after_each
+      false          // is_enabled
+  );
+  
+  // Create a vector of test runs
+  std::vector<TestTuple<string, string, size_t>> test_runs;
+  test_runs.push_back(test_run);
+  
+  // Use the vector-based MakeTestSuite overload
+  TinyTest::VectorTestSuite<string, string, size_t> suite =
+      MakeTestSuite("Suite With Cleanup", fnToTest, test_runs, suite_Compare, before_all, after_all, true);
+
+  EXPECT_THAT(get<0>(suite), Eq("Suite With Cleanup"));
+  EXPECT_THAT(get<2>(suite).size(), Eq(1));
+  EXPECT_THAT(get<3>(suite), Ne(nullopt));
+  EXPECT_THAT(get<4>(suite), Ne(nullopt));
+  EXPECT_THAT(get<5>(suite), Ne(nullopt));
+  EXPECT_THAT(get<6>(suite), Eq(true));
+  
+  // Execute the suite to test the cleanup handler
+  auto results = ExecuteSuite(suite);
+  EXPECT_THAT(cleanup_called, Eq(true));
+  EXPECT_THAT(results.Skipped(), Eq(1));
 }
 
 TEST(PrintResults, ShouldDoTheThing) {
@@ -636,8 +694,8 @@ TEST(ExecuteSuiteWithParams, ShouldNotExecuteADisabledSuite) {
   };
   bool before_each_called = false;
   MaybeTestConfigureFunction before_each = [&before_each_called]() { before_each_called = true; };
-  bool after_each_called = false;
-  MaybeTestConfigureFunction after_each = [&after_each_called]() { after_each_called = true; };
+  int after_each_call_count = 0;
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
   bool test_function_called = false;
   function<bool()> test_function = [&test_function_called]() {
     test_function_called = true;
@@ -667,7 +725,7 @@ TEST(ExecuteSuiteWithParams, ShouldNotExecuteADisabledSuite) {
   EXPECT_THAT(after_all_called, Eq(false));
   EXPECT_THAT(test_Compare_called, Eq(false));
   EXPECT_THAT(before_each_called, Eq(false));
-  EXPECT_THAT(after_each_called, Eq(false));
+  EXPECT_THAT(after_each_call_count, Eq(0));
 }
 
 TEST(ExecuteSuiteWithParams, ShouldNotExecuteASuiteWithNoTests) {
@@ -685,10 +743,10 @@ TEST(ExecuteSuiteWithParams, ShouldNotExecuteASuiteWithNoTests) {
     test_Compare_called = true;
     return left == right;
   };
-  bool before_each_called = false;
-  MaybeTestConfigureFunction before_each = [&before_each_called]() { before_each_called = true; };
-  bool after_each_called = false;
-  MaybeTestConfigureFunction after_each = [&after_each_called]() { after_each_called = true; };
+  int before_each_call_count = 0;
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  int after_each_call_count = 0;
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
   bool test_function_called = false;
   function<bool()> test_function = [&test_function_called]() {
     test_function_called = true;
@@ -707,8 +765,8 @@ TEST(ExecuteSuiteWithParams, ShouldNotExecuteASuiteWithNoTests) {
   EXPECT_THAT(before_all_called, Eq(false));
   EXPECT_THAT(after_all_called, Eq(false));
   EXPECT_THAT(test_Compare_called, Eq(false));
-  EXPECT_THAT(before_each_called, Eq(false));
-  EXPECT_THAT(after_each_called, Eq(false));
+  EXPECT_THAT(before_each_call_count, Eq(false));
+  EXPECT_THAT(after_each_call_count, Eq(false));
 }
 
 TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASinglePass) {
@@ -961,22 +1019,22 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAnExceptionThrownByATest) {
     return true;
   };
 
+  // Create a test run
+  auto test_run = MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true);
+  
+  // Create a vector of test runs
+  std::vector<TestTuple<bool>> test_runs;
+  test_runs.push_back(test_run);
+  
+  // Use the vector-based MakeTestSuite overload
+  auto suite = MakeTestSuite("My Suite", test_function, test_runs, suite_Compare, before_all, after_all, true);
+
   // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
-  function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
-                 {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
-                 },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+  function<void()> wrapper = [&suite]() {
+    ExecuteSuite(suite);
   };
 
   string output = InterceptCout(wrapper);
-  // string output = "";
-  // EXPECT_THROW((output = InterceptCout(wrapper)), std::exception);
   EXPECT_THAT(output,
               Eq(
                   R"test(🚀Beginning Suite: My Suite

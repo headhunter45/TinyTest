@@ -1,19 +1,88 @@
 # TinyTest
-TinyTest is a minimal testing library. The name might change soon, because I realized there were already multiple projects called TinyTest.
 
-## Test Lifecycle
-1.  suite_setup_function() - This is called to allocate any suite level resources. This is called once when the suite begins.
-2.  This section may be executed in parallel. These functions may be called in parallel but execution will not proceed past this block until they have all finished.
-3.  test_setup_function() - This is called once for every test in tests. You may uske it to allocate resources or setup mocks, stubs, and spies.
-4.  function_to_test(...) - Thiis is called once for every test row in tests. Only one of these test functions will actually be run for each test in tests. They should return true if the test passed, return false if the test failed or there was an error, and be nullptr if they should be skipped. The execution function will be called with expected_output and the result of function_to_test(...). They can be used to test functions with side effects, especially void functions.
-5.  test_compare_function() - This is the highest priority compare function. If it is not nullptr then it will be called to evaluate the test results.
-6.  suite_compare_function() - This is the second highest priority compare function. If test_compare_function is nullptr and this is not nullptr then it will be called to evaluate the test results.
-7.  [](TResult expected, TResult actual) {return expected == actual; } - This is the lowest priority compare function. If all other compare functions are nullptr then this will be called to evaluate the test.
-8.  test_teardown_function() - This is called once for every test in tests. You must free/release any resources allocated by test_setup_function.
-9.  This ends the parallel test functions section all tests in this suite will have completed before execution proceeds.
-10. Collect reports - This step is not visible to the user at this point, but data returned by all of the test functions is collected here. This is were you will eventually be able to format/log data for reports.
-11. suite_teardown_function() - This is called after all tests calls in this suite have completed, all test_teardown_function calls have completed, and all test reports/logs have been written. You should free any resources allocated in suite_setup_function.
+TinyTest is a lightweight C++ testing framework designed to simplify unit testing, with focus on ease of use and flexibility.
 
-## TODO:
-* Replace use of overridden operator<< with PrettyPrint function.
-* Make ExecuteSuite work even if expected and actual are wstring, wstring_view, or wchar_t*
+## Key Features
+
+- Simple API for creating and running test suites
+- Support for test setup and teardown functions
+- Custom comparison functions for complex objects
+- Detailed test results reporting
+- Ability to skip tests conditionally
+- Integration with CMake build system
+
+## Examples
+
+Several examples demonstrating how to use TinyTest in different environments are provided in the [examples/](examples/) directory:
+
+1. **Standalone Example**: Uses CMake's FetchContent to automatically download TinyTest
+2. **Preinstalled Example**: Uses find_package to locate a system-installed TinyTest
+3. **Sample Project**: Minimal example showing basic TinyTest usage
+
+Each example includes detailed instructions for building and running on both Windows and Linux/macOS systems.
+
+## Building with CMake
+
+TinyTest can be built using CMake:
+
+```bash
+# Create a build directory
+mkdir build && cd build
+
+# Configure
+cmake ..
+
+# Build
+cmake --build .
+
+# Run tests
+ctest
+```
+
+## Usage Overview
+
+Here's a simple example of how to use TinyTest:
+
+```cpp
+#include <tinytest/tinytest.h>
+
+// Function to test
+int add(int a, int b) {
+    return a + b;
+}
+
+int main() {
+    // Create a test suite
+    auto suite = TinyTest::MakeTestSuite(
+        "AddFunction",
+        add,
+        {
+            TinyTest::MakeTest("should add two positive numbers", 
+                5,               // Expected result
+                std::make_tuple(2, 3))  // Input parameters
+        }
+    );
+    
+    // Execute the suite and get results
+    auto results = TinyTest::ExecuteSuite(suite);
+    
+    // Print results
+    TinyTest::PrintResults(std::cout, results);
+    
+    return (results.Failed() > 0 || results.Errors() > 0) ? 1 : 0;
+}
+```
+
+## Integration Options
+
+TinyTest can be integrated into your project in multiple ways:
+
+1. **Using FetchContent** - automatically downloads and builds TinyTest
+2. **Using find_package** - uses a pre-installed version of TinyTest
+3. **Direct inclusion** - directly adding TinyTest as source files
+
+See the [examples/](examples/) directory for detailed instructions on each approach.
+
+## License
+
+TinyTest is released under the MIT License. See [LICENSE](LICENSE) file for details.
