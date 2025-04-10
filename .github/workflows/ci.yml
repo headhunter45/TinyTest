@@ -117,7 +117,8 @@ jobs:
 
       # Create build directory
       - name: Create Build Directory
-        run: cmake -E make_directory ${{github.workspace}}/build
+        shell: bash
+        run: mkdir -p "${{github.workspace}}/build"
 
       # Configure CMake
       - name: Configure CMake
