@@ -212,52 +212,66 @@ if(BUILD_TESTING)
   # Define our own custom tests list to avoid conflicts
   set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
   
-  FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.12.1
-  )
-  # For Windows: Prevent overriding the parent project's compiler/linker settings
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(googletest)
-
-  # Get GoogleTest include directories
-  FetchContent_GetProperties(googletest)
-  set(GTEST_INCLUDE_DIRS 
-    ${googletest_SOURCE_DIR}/googletest/include
-    ${googletest_SOURCE_DIR}/googlemock/include
-  )
-
-  # Create test executable - renamed to avoid conflicts
-  add_executable(tinytest_tests
-    tinytest_test.cpp
-  )
-
-  # Set the output name to "tinytest_test" regardless of target name
-  set_target_properties(tinytest_tests PROPERTIES
-    OUTPUT_NAME tinytest_test
-  )
-
-  # Add include directories for tests
-  target_include_directories(tinytest_tests
-    PRIVATE
-      ${CPPUTILS_INCLUDE_DIR}
-      ${GTEST_INCLUDE_DIRS}
-  )
-
-  # Link against TinyTest library and GoogleTest
-  target_link_libraries(tinytest_tests
-    PRIVATE
-      tinytest_lib
-      GTest::gtest_main
-      GTest::gmock
-  )
-
-  # Register test with CTest - make sure only our test is registered
-  add_test(NAME tinytest_test COMMAND tinytest_tests)
+  # Set GoogleTest version and URL
+  set(GTEST_VERSION "release-1.12.1")
+  set(GTEST_URL "https://github.com/google/googletest/archive/${GTEST_VERSION}.zip")
+  set(GTEST_DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-download")
+  set(GTEST_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-src")
+  set(GTEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-build")
   
-  # Explicitly set the test list to prevent picking up other tests
-  set_property(GLOBAL PROPERTY TEST_INCLUDE_FILES "")
+  # Download GoogleTest
+  if(NOT EXISTS "${GTEST_SOURCE_DIR}")
+    file(MAKE_DIRECTORY "${GTEST_DOWNLOAD_DIR}")
+    file(DOWNLOAD "${GTEST_URL}" "${GTEST_DOWNLOAD_DIR}/googletest.zip" STATUS download_status)
+    list(GET download_status 0 status_code)
+    if(status_code EQUAL 0)
+      execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzf "${GTEST_DOWNLOAD_DIR}/googletest.zip"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+      )
+      file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/googletest-${GTEST_VERSION}" "${GTEST_SOURCE_DIR}")
+    else()
+      message(WARNING "Failed to download GoogleTest. Tests will be disabled.")
+      set(BUILD_TESTING OFF)
+    endif()
+  endif()
+  
+  if(BUILD_TESTING AND EXISTS "${GTEST_SOURCE_DIR}")
+    # Add GoogleTest as a subdirectory
+    add_subdirectory("${GTEST_SOURCE_DIR}" "${GTEST_BINARY_DIR}" EXCLUDE_FROM_ALL)
+    
+    # Create test executable - renamed to avoid conflicts
+    add_executable(tinytest_tests
+      tinytest_test.cpp
+    )
+    
+    # Set the output name to "tinytest_test" regardless of target name
+    set_target_properties(tinytest_tests PROPERTIES
+      OUTPUT_NAME tinytest_test
+    )
+    
+    # Add include directories for tests
+    target_include_directories(tinytest_tests
+      PRIVATE
+        ${CPPUTILS_INCLUDE_DIR}
+        "${GTEST_SOURCE_DIR}/googletest/include"
+        "${GTEST_SOURCE_DIR}/googlemock/include"
+    )
+    
+    # Link against TinyTest library and GoogleTest
+    target_link_libraries(tinytest_tests
+      PRIVATE
+        tinytest_lib
+        gtest_main
+        gmock
+    )
+    
+    # Register test with CTest - make sure only our test is registered
+    add_test(NAME tinytest_test COMMAND tinytest_tests)
+    
+    # Explicitly set the test list to prevent picking up other tests
+    set_property(GLOBAL PROPERTY TEST_INCLUDE_FILES "")
+  endif()
 endif()
 
 # Installation
