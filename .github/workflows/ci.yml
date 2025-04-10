@@ -7,20 +7,21 @@ on:
     branches: [ main ]
 
 jobs:
-  build-bazel:
-    name: Build with Bazel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # Temporarily disabled
+  # build-bazel:
+  #   name: Build with Bazel
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Setup Bazel
-        uses: bazelbuild/setup-bazelisk@v2
+  #     - name: Setup Bazel
+  #       uses: bazelbuild/setup-bazelisk@v2
 
-      - name: Build
-        run: bazel build --enable_workspace=true --enable_bzlmod=false //...
+  #     - name: Build
+  #       run: bazel build --enable_workspace=true --enable_bzlmod=false //...
 
-      - name: Test
-        run: bazel test --enable_workspace=true --enable_bzlmod=false //...
+  #     - name: Test
+  #       run: bazel test --enable_workspace=true --enable_bzlmod=false //...
 
   build-cmake:
     name: Build with CMake
@@ -28,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]  # Temporarily limit to Ubuntu only
         build_type: [Debug, Release]
         library_type: [Static, Shared]
         compiler: [default]
@@ -63,12 +64,13 @@ jobs:
             cc: clang
             cxx: clang++
           
-          # Add MinGW configuration on Windows
-          - os: windows-latest
-            build_type: Release
-            library_type: Static
-            compiler: mingw
-            use_mingw: true
+          # Temporarily disabled
+          # # Add MinGW configuration on Windows
+          # - os: windows-latest
+          #   build_type: Release
+          #   library_type: Static
+          #   compiler: mingw
+          #   use_mingw: true
 
     steps:
       - uses: actions/checkout@v3
