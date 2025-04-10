@@ -43,7 +43,7 @@ jobs:
           - os: ubuntu-latest
             build_type: Release
             library_type: Static
-            compiler: gcc-10
+            compiler: 10
             cc: gcc-10
             cxx: g++-10
           
@@ -75,7 +75,7 @@ jobs:
 
       # Set up GCC if specified
       - name: Set up GCC
-        if: matrix.compiler == 'gcc-10' || matrix.compiler == 'gcc-11'
+        if: matrix.compiler == '10' || matrix.compiler == 'gcc-11'
         uses: egor-tensin/setup-gcc@v1
         with:
           version: ${{ matrix.compiler }}
