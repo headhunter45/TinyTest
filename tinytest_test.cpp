@@ -418,12 +418,11 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   MaybeTestConfigureFunction before_each = []() {};
   TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
       "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
+  auto test_runs = {test_run};
   TestSuite<string, string, size_t> first = {
       "Suite Name",
       fnToTest,
-      {
-          test_run,
-      },
+      test_runs,
       suite_Compare,
       before_all,
       after_all,
@@ -441,9 +440,9 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
-  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
-  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);
@@ -520,8 +519,9 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
       "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
   
   // Keep using the initializer_list version to test both implementations
+  auto test_runs = {test_run};
   TestSuite<string, string, size_t> first =
-      MakeTestSuite("Suite Two", fnToTest, {test_run}, suite_Compare, before_all, after_all, true);
+      MakeTestSuite("Suite Two", fnToTest, test_runs, suite_Compare, before_all, after_all, true);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Two"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
@@ -535,9 +535,9 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
-  EXPECT_THAT(get<3>(test_data).has_value(), Eq(false));
-  EXPECT_THAT(get<4>(test_data).has_value(), Eq(false));
-  EXPECT_THAT(get<5>(test_data).has_value(), Eq(false));
+  EXPECT_THAT(get<3>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<4>(test_data), Ne(nullopt));
+  EXPECT_THAT(get<5>(test_data), Ne(nullopt));
   EXPECT_THAT(get<6>(test_data), Eq(false));
 
   auto inputs = get<2>(test_data);

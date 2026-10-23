@@ -131,6 +131,8 @@ if(NOT TINYTEST_USE_SYSTEM_CPPUTILS)
       string(REPLACE "FetchContent_MakeAvailable(googletest)" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
       string(REPLACE "find_package(GTest REQUIRED)" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
       string(REPLACE "FetchContent_Declare(googletest" "# Disabled FetchContent_Declare(googletest" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
+      string(REPLACE "enable_testing()" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
+      string(REPLACE "add_subdirectory(tests)" "" CPPUTILS_CMAKE_CONTENT "${CPPUTILS_CMAKE_CONTENT}")
       file(WRITE "${cpputils_SOURCE_DIR}/CMakeLists.txt" "${CPPUTILS_CMAKE_CONTENT}")
     endif()
     
