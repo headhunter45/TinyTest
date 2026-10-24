@@ -51,6 +51,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Export compile commands for IDEs (clangd, VSCode C/C++, etc.)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Setup build configurations
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'Release' as none was specified")

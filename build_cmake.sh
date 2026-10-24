@@ -20,6 +20,9 @@ cmake --build .
 # Run tests
 ctest --output-on-failure
 
+# Ensure compile_commands.json is symlinked in workspace root for IDEs
+ln -sf build_ci/compile_commands.json ../compile_commands.json
+
 echo "Build complete!"
 echo "To run tests: cd build_ci && ctest"
 echo "To install: cd build_ci && sudo cmake --install ." 

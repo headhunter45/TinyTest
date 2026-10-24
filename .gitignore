@@ -5,6 +5,9 @@
 
 .cursor/
 .vscode/
+!.vscode/settings.json
+.clangd
+compile_commands.json
 build/
 build-*/
 build_*/
