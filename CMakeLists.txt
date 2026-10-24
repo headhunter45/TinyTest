@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
+
+# Silence deprecation warning for FetchContent_Populate with declared details (CMake 3.30+)
+if(POLICY CMP0169)
+  cmake_policy(SET CMP0169 OLD)
+endif()
+
 project(TinyTest VERSION 1.0.0 LANGUAGES CXX)
 
 # Check for required C++ features
@@ -243,8 +249,9 @@ if(BUILD_TESTING)
   set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
   
   # Set GoogleTest version and URL
-  set(GTEST_VERSION "release-1.12.1")
-  set(GTEST_URL "https://github.com/google/googletest/archive/${GTEST_VERSION}.zip")
+  set(GTEST_VERSION "1.15.2")
+  set(GTEST_TAG "v${GTEST_VERSION}")
+  set(GTEST_URL "https://github.com/google/googletest/archive/refs/tags/${GTEST_TAG}.tar.gz")
   set(GTEST_DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-download")
   set(GTEST_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-src")
   set(GTEST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/googletest-build")
@@ -252,11 +259,11 @@ if(BUILD_TESTING)
   # Download GoogleTest
   if(NOT EXISTS "${GTEST_SOURCE_DIR}")
     file(MAKE_DIRECTORY "${GTEST_DOWNLOAD_DIR}")
-    file(DOWNLOAD "${GTEST_URL}" "${GTEST_DOWNLOAD_DIR}/googletest.zip" STATUS download_status)
+    file(DOWNLOAD "${GTEST_URL}" "${GTEST_DOWNLOAD_DIR}/googletest.tar.gz" STATUS download_status)
     list(GET download_status 0 status_code)
     if(status_code EQUAL 0)
       execute_process(
-        COMMAND ${CMAKE_COMMAND} -E tar xzf "${GTEST_DOWNLOAD_DIR}/googletest.zip"
+        COMMAND ${CMAKE_COMMAND} -E tar xzf "${GTEST_DOWNLOAD_DIR}/googletest.tar.gz"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
       )
       file(RENAME "${CMAKE_CURRENT_BINARY_DIR}/googletest-${GTEST_VERSION}" "${GTEST_SOURCE_DIR}")

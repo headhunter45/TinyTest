@@ -6,9 +6,8 @@
 .cursor/
 .vscode/
 build/
-build-debug/
-build-release/
-build-test/
+build-*/
+build_*/
 Testing/
 
 # Prerequisites
