@@ -1,9 +1,9 @@
 /***************************************************************************************
- * @file tinytest.h                                                                    *
+ * @file tinytest.h        *
  *                                                                                     *
- * @brief Defines structs and functions for implementing TinyTest.                     *
- * @copyright Copyright 2023 Tom Hicks <headhunter3@gmail.com>                         *
- * Licensed under the MIT license see the LICENSE file for details.                    *
+ * @brief Defines structs and functions for implementing TinyTest.        *
+ * @copyright Copyright 2023 Tom Hicks <headhunter3@gmail.com>        * Licensed
+ * under the MIT license see the LICENSE file for details.                    *
  ***************************************************************************************/
 
 #include "tinytest.h"
@@ -57,7 +57,8 @@ TEST(VectorCompare, ShouldPrintVectorsDifferAtIndexZero) {
   vector second = vector({0, 1, 2, 3});
   Compare(os, first, second);
   EXPECT_THAT(os.str(),
-              Eq((string) "vectors differ at index 0, 1 != 0, expected: [ 1, 2, 3, 4 ], actual: [ 0, 1, 2, 3 ]"));
+              Eq((string) "vectors differ at index 0, 1 != 0, expected: [ 1, "
+                          "2, 3, 4 ], actual: [ 0, 1, 2, 3 ]"));
 }
 
 TEST(VectorCompare, ShouldPrintVectorsDifferAtEnd) {
@@ -65,7 +66,8 @@ TEST(VectorCompare, ShouldPrintVectorsDifferAtEnd) {
   vector first = vector({1, 2, 3, 4});
   vector second = vector({1, 2, 3, 0});
   Compare(os, first, second);
-  EXPECT_THAT(os.str(), Eq("vectors differ at index 3, 4 != 0, expected: [ 1, 2, 3, 4 ], actual: [ 1, 2, 3, 0 ]"));
+  EXPECT_THAT(os.str(), Eq("vectors differ at index 3, 4 != 0, expected: [ 1, "
+                           "2, 3, 4 ], actual: [ 1, 2, 3, 0 ]"));
 }
 
 TEST(VectorCompare, ShouldPrintNothingWhenVectorsAreEqual) {
@@ -90,7 +92,16 @@ TEST(TestResults, ShouldConstructTheDefaultInstance) {
 
 TEST(TestResults, ShouldCopyAnotherInstance) {
   TestResults original;
-  original.Pass().Skip().Skip().Fail().Fail().Fail().Error().Error().Error().Error();
+  original.Pass()
+      .Skip()
+      .Skip()
+      .Fail()
+      .Fail()
+      .Fail()
+      .Error()
+      .Error()
+      .Error()
+      .Error();
   TestResults actual(original);
   EXPECT_THAT(actual.ErrorMessages().size(), Eq(0));
   EXPECT_THAT(actual.Errors(), Eq(4));
@@ -103,7 +114,8 @@ TEST(TestResults, ShouldCopyAnotherInstance) {
 }
 
 TEST(TestResults, ShouldCreateASpecificInstance) {
-  TestResults actual(1, 2, 3, 4, 5, {"hello"}, {"first", "second"}, {"third", "fourth", "fifth"});
+  TestResults actual(1, 2, 3, 4, 5, {"hello"}, {"first", "second"},
+                     {"third", "fourth", "fifth"});
   EXPECT_THAT(actual.ErrorMessages().size(), Eq(1));
   EXPECT_THAT(actual.Errors(), Eq(1));
   EXPECT_THAT(actual.FailureMessages().size(), Eq(2));
@@ -211,7 +223,8 @@ TEST(TestResults, ShouldReportASkipWithAMessage) {
 
 TEST(TestResults, ShouldGetACombinationOfTwoInstances) {
   const TestResults first = TestResults().Pass().Skip("S").Fail("F");
-  const TestResults second = TestResults().Skip().Error("A").Error("B").Fail("D");
+  const TestResults second =
+      TestResults().Skip().Error("A").Error("B").Fail("D");
   const TestResults third = first + second;
 
   // Expect first was unchanged.
@@ -257,7 +270,8 @@ TEST(TestResults, ShouldGetACombinationOfTwoInstances) {
 
 TEST(TestResults, ShouldCombineAnotherInstanceIntoThisOne) {
   TestResults first = TestResults().Pass().Skip("S").Fail("F");
-  const TestResults second = TestResults().Skip().Error("A").Error("B").Fail("D");
+  const TestResults second =
+      TestResults().Skip().Error("A").Error("B").Fail("D");
   first += second;
 
   // Expect second was unchanged
@@ -290,7 +304,8 @@ TEST(TestResults, ShouldCombineAnotherInstanceIntoThisOne) {
 }
 
 TEST(TestResults, ShouldCombineAnInstanceWithItself) {
-  TestResults actual = TestResults().Pass().Fail("A").Fail("B").Skip().Error("Bad").Skip();
+  TestResults actual =
+      TestResults().Pass().Fail("A").Fail("B").Skip().Error("Bad").Skip();
   actual += actual;
   EXPECT_THAT(actual.ErrorMessages().size(), Eq(2));
   EXPECT_THAT(actual.ErrorMessages().at(0), Eq("Bad"));
@@ -320,7 +335,7 @@ TEST(DefaultTestConfigureFunction, ShouldBeNullOpt) {
 
 // Test that TestTuple makes the right kind of tuple.
 TEST(TestTuple, ShouldDoTheThing) {
-  TestTuple<int, string, int, const char*> test = {
+  TestTuple<int, string, int, const char *> test = {
       (string) "ASDF",
       0,
       {(string) "first", 2, "third"},
@@ -340,14 +355,8 @@ TEST(TestTuple, ShouldDoTheThing) {
 }
 
 TEST(TestTuple, ShouldCoerceValuesToTheCorrectTypes) {
-  TestTuple<int, string, int, const char*> test = {
-      "A",
-      0,
-      {"B", 1, "C"},
-      nullopt,
-      nullopt,
-      nullopt,
-      true,
+  TestTuple<int, string, int, const char *> test = {
+      "A", 0, {"B", 1, "C"}, nullopt, nullopt, nullopt, true,
   };
   tuple arguments = get<2>(test);
   EXPECT_THAT(get<0>(test), Eq((string) "A"));
@@ -360,15 +369,18 @@ TEST(TestTuple, ShouldCoerceValuesToTheCorrectTypes) {
 }
 
 TEST(MakeTest, ShouldMakeTests) {
-  MaybeTestCompareFunction<string> test_Compare = [](const string& left, const string& right) -> bool { return false; };
+  MaybeTestCompareFunction<string> test_Compare =
+      [](const string &left, const string &right) -> bool { return false; };
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_each = []() {};
 
-  tuple first = MakeTest(
-      (string) "A Test", (string) "A", make_tuple((string) "ABCDEFG", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
+  tuple first = MakeTest((string) "A Test", (string) "A",
+                         make_tuple((string) "ABCDEFG", static_cast<size_t>(0)),
+                         test_Compare, before_each, after_each, false);
 
-  TestTuple<string, string, size_t> second =
-      MakeTest<string, string, size_t>("Another Test", "B", make_tuple((string) "ABCDEF", static_cast<size_t>(1)));
+  TestTuple<string, string, size_t> second = MakeTest<string, string, size_t>(
+      "Another Test", "B",
+      make_tuple((string) "ABCDEF", static_cast<size_t>(1)));
   TestTuple<string, string, size_t> third = first;
 
   EXPECT_THAT(get<0>(first), Eq("A Test"));
@@ -379,9 +391,12 @@ TEST(MakeTest, ShouldMakeTests) {
   EXPECT_THAT(get<1>(second), Eq("B"));
   EXPECT_THAT(get<1>(third), Eq("A"));
 
-  EXPECT_THAT(get<2>(first), Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
-  EXPECT_THAT(get<2>(second), Eq(make_tuple((string) "ABCDEF", static_cast<size_t>(1))));
-  EXPECT_THAT(get<2>(third), Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
+  EXPECT_THAT(get<2>(first),
+              Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
+  EXPECT_THAT(get<2>(second),
+              Eq(make_tuple((string) "ABCDEF", static_cast<size_t>(1))));
+  EXPECT_THAT(get<2>(third),
+              Eq(make_tuple((string) "ABCDEFG", static_cast<size_t>(0))));
 
   // TODO: We can only test Eq(nullopt) or not.
   EXPECT_THAT(get<3>(first), Ne(nullopt));
@@ -400,33 +415,33 @@ TEST(MakeTest, ShouldMakeTests) {
   EXPECT_THAT(get<6>(second), Eq(true));
   EXPECT_THAT(get<6>(third), Eq(false));
 
-  // TODO: Create make_inputs<string, int> and TestInputParams to reduce the amount of type casting in these lines.
+  // TODO: Create make_inputs<string, int> and TestInputParams to reduce the
+  // amount of type casting in these lines.
 }
 
 TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
-  auto fnToTest = [](const string& text, size_t position) -> string {
+  auto fnToTest = [](const string &text, size_t position) -> string {
     if (position < text.size()) {
       return &text.at(position);
     }
     return "";
   };
-  MaybeTestCompareFunction<string> test_Compare = [](const string& left, const string& right) -> bool { return false; };
-  MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
+  MaybeTestCompareFunction<string> test_Compare =
+      [](const string &left, const string &right) -> bool { return false; };
+  MaybeTestCompareFunction<string> suite_Compare =
+      [](const string &left, const string &right) -> bool { return true; };
   MaybeTestConfigureFunction after_all = []() {};
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
   TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
-      "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
+      "Test Name", "Expected",
+      make_tuple((string) "text", static_cast<size_t>(0)), test_Compare,
+      before_each, after_each, false);
   auto test_runs = {test_run};
   TestSuite<string, string, size_t> first = {
-      "Suite Name",
-      fnToTest,
-      test_runs,
-      suite_Compare,
-      before_all,
-      after_all,
-      true,
+      "Suite Name", fnToTest,  test_runs, suite_Compare,
+      before_all,   after_all, true,
   };
   EXPECT_THAT(get<0>(first), Eq("Suite Name"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
@@ -451,34 +466,35 @@ TEST(TestSuite, ShouldCoerceValuesToTheCorrectTypes) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
-  auto fnToTest = [](const string& text, size_t position) -> string {
+  auto fnToTest = [](const string &text, size_t position) -> string {
     if (position < text.size()) {
       return &text.at(position);
     }
     return "";
   };
-  MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
+  MaybeTestCompareFunction<string> suite_Compare =
+      [](const string &left, const string &right) -> bool { return true; };
   MaybeTestConfigureFunction after_all = []() {};
   MaybeTestConfigureFunction before_all = []() {};
-  
+
   // Create test tuple directly with explicit nullopt values
-  TestTuple<string, string, size_t> test_run = std::make_tuple(
-      "Test Name", 
-      "Expected", 
-      std::make_tuple(string("text"), static_cast<size_t>(0)), 
-      std::nullopt,  // test_compare_function
-      std::nullopt,  // before_each
-      std::nullopt,  // after_each
-      false          // is_enabled
-  );
-  
+  TestTuple<string, string, size_t> test_run =
+      std::make_tuple("Test Name", "Expected",
+                      std::make_tuple(string("text"), static_cast<size_t>(0)),
+                      std::nullopt, // test_compare_function
+                      std::nullopt, // before_each
+                      std::nullopt, // after_each
+                      false         // is_enabled
+      );
+
   // Create a vector of test runs instead of an initializer list
   std::vector<TestTuple<string, string, size_t>> test_runs;
   test_runs.push_back(test_run);
-  
+
   // Use the vector-based MakeTestSuite overload
   TinyTest::VectorTestSuite<string, string, size_t> first =
-      MakeTestSuite("Suite Name", fnToTest, test_runs, suite_Compare, before_all, after_all, false);
+      MakeTestSuite("Suite Name", fnToTest, test_runs, suite_Compare,
+                    before_all, after_all, false);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Name"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
@@ -488,7 +504,8 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
   EXPECT_THAT(get<5>(first), Ne(nullopt));
   EXPECT_THAT(get<6>(first), Eq(false));
 
-  auto test_data = get<2>(first)[0];  // Access vector element instead of using begin()
+  auto test_data =
+      get<2>(first)[0]; // Access vector element instead of using begin()
   EXPECT_THAT(get<0>(test_data), Eq("Test Name"));
   EXPECT_THAT(get<1>(test_data), Eq("Expected"));
   // Item 2 is checked below as inputs.
@@ -503,25 +520,30 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAVectorOfTestRuns) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
-  auto fnToTest = [](const string& text, size_t position) -> string {
+  auto fnToTest = [](const string &text, size_t position) -> string {
     if (position < text.size()) {
       return &text.at(position);
     }
     return "";
   };
-  MaybeTestCompareFunction<string> test_Compare = [](const string& left, const string& right) -> bool { return false; };
-  MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
+  MaybeTestCompareFunction<string> test_Compare =
+      [](const string &left, const string &right) -> bool { return false; };
+  MaybeTestCompareFunction<string> suite_Compare =
+      [](const string &left, const string &right) -> bool { return true; };
   MaybeTestConfigureFunction after_all = []() {};
   MaybeTestConfigureFunction after_each = []() {};
   MaybeTestConfigureFunction before_all = []() {};
   MaybeTestConfigureFunction before_each = []() {};
   TestTuple<string, string, size_t> test_run = MakeTest<string, string, size_t>(
-      "Test Name", "Expected", make_tuple((string) "text", static_cast<size_t>(0)), test_Compare, before_each, after_each, false);
-  
+      "Test Name", "Expected",
+      make_tuple((string) "text", static_cast<size_t>(0)), test_Compare,
+      before_each, after_each, false);
+
   // Keep using the initializer_list version to test both implementations
   auto test_runs = {test_run};
   TestSuite<string, string, size_t> first =
-      MakeTestSuite("Suite Two", fnToTest, test_runs, suite_Compare, before_all, after_all, true);
+      MakeTestSuite("Suite Two", fnToTest, test_runs, suite_Compare, before_all,
+                    after_all, true);
 
   EXPECT_THAT(get<0>(first), Eq("Suite Two"));
   // EXPECT_THAT(get<1>(first), Eq(fnToTest));
@@ -546,35 +568,38 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithAnInitializerListOfTestRuns) {
 }
 
 TEST(MakeTestSuite, ShouldMakeATestSuiteWithCleanupHandler) {
-  auto fnToTest = [](const string& text, size_t position) -> string {
+  auto fnToTest = [](const string &text, size_t position) -> string {
     if (position < text.size()) {
       return &text.at(position);
     }
     return "";
   };
-  MaybeTestCompareFunction<string> suite_Compare = [](const string& left, const string& right) -> bool { return true; };
+  MaybeTestCompareFunction<string> suite_Compare =
+      [](const string &left, const string &right) -> bool { return true; };
   bool cleanup_called = false;
-  MaybeTestConfigureFunction after_all = [&cleanup_called]() { cleanup_called = true; };
+  MaybeTestConfigureFunction after_all = [&cleanup_called]() {
+    cleanup_called = true;
+  };
   MaybeTestConfigureFunction before_all = []() {};
-  
+
   // Create test tuple directly with explicit nullopt values
-  TestTuple<string, string, size_t> test_run = std::make_tuple(
-      "Test Name", 
-      "Expected", 
-      std::make_tuple(string("text"), static_cast<size_t>(0)), 
-      std::nullopt,  // test_compare_function
-      std::nullopt,  // before_each
-      std::nullopt,  // after_each
-      false          // is_enabled
-  );
-  
+  TestTuple<string, string, size_t> test_run =
+      std::make_tuple("Test Name", "Expected",
+                      std::make_tuple(string("text"), static_cast<size_t>(0)),
+                      std::nullopt, // test_compare_function
+                      std::nullopt, // before_each
+                      std::nullopt, // after_each
+                      false         // is_enabled
+      );
+
   // Create a vector of test runs
   std::vector<TestTuple<string, string, size_t>> test_runs;
   test_runs.push_back(test_run);
-  
+
   // Use the vector-based MakeTestSuite overload
   TinyTest::VectorTestSuite<string, string, size_t> suite =
-      MakeTestSuite("Suite With Cleanup", fnToTest, test_runs, suite_Compare, before_all, after_all, true);
+      MakeTestSuite("Suite With Cleanup", fnToTest, test_runs, suite_Compare,
+                    before_all, after_all, true);
 
   EXPECT_THAT(get<0>(suite), Eq("Suite With Cleanup"));
   EXPECT_THAT(get<2>(suite).size(), Eq(1));
@@ -582,7 +607,7 @@ TEST(MakeTestSuite, ShouldMakeATestSuiteWithCleanupHandler) {
   EXPECT_THAT(get<4>(suite), Ne(nullopt));
   EXPECT_THAT(get<5>(suite), Ne(nullopt));
   EXPECT_THAT(get<6>(suite), Eq(true));
-  
+
   // Execute the suite to test the cleanup handler
   auto results = ExecuteSuite(suite);
   EXPECT_THAT(cleanup_called, Eq(true));
@@ -631,7 +656,9 @@ TEST(Coalesce, ShouldCombineTwoNulls) {
 
 TEST(Coalesce, ShouldCombineAFunctionWithANull) {
   bool this_starts_false;
-  MaybeTestConfigureFunction fn1 = [&this_starts_false]() { this_starts_false = true; };
+  MaybeTestConfigureFunction fn1 = [&this_starts_false]() {
+    this_starts_false = true;
+  };
   MaybeTestConfigureFunction fn2 = nullopt;
   MaybeTestConfigureFunction actual = Coalesce(fn1, fn2);
   EXPECT_THAT(actual, Ne(nullopt));
@@ -643,7 +670,9 @@ TEST(Coalesce, ShouldCombineAFunctionWithANull) {
 TEST(Coalesce, ShouldCombineANullWithAFunction) {
   bool this_starts_false;
   MaybeTestConfigureFunction fn1 = nullopt;
-  MaybeTestConfigureFunction fn2 = [&this_starts_false]() { this_starts_false = true; };
+  MaybeTestConfigureFunction fn2 = [&this_starts_false]() {
+    this_starts_false = true;
+  };
   MaybeTestConfigureFunction actual = Coalesce(fn1, fn2);
   EXPECT_THAT(actual, Ne(nullopt));
   EXPECT_THAT(actual.has_value(), Eq(true));
@@ -679,44 +708,53 @@ TEST(Coalesce, ShouldExecuteInTheCorrectOrder) {
 
 TEST(ExecuteSuiteWithParams, ShouldNotExecuteADisabledSuite) {
   bool suite_Compare_called = false;
-  MaybeTestCompareFunction<bool> suite_Compare = [&suite_Compare_called](bool left, bool right) {
-    suite_Compare_called = true;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> suite_Compare =
+      [&suite_Compare_called](bool left, bool right) {
+        suite_Compare_called = true;
+        return left == right;
+      };
   bool before_all_called = false;
-  MaybeTestConfigureFunction before_all = [&before_all_called]() { before_all_called = true; };
-  bool after_all_called = false;
-  MaybeTestConfigureFunction after_all = [&after_all_called]() { after_all_called = true; };
-  bool test_Compare_called = false;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_called](bool left, bool right) {
-    test_Compare_called = true;
-    return left == right;
+  MaybeTestConfigureFunction before_all = [&before_all_called]() {
+    before_all_called = true;
   };
+  bool after_all_called = false;
+  MaybeTestConfigureFunction after_all = [&after_all_called]() {
+    after_all_called = true;
+  };
+  bool test_Compare_called = false;
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_called](bool left, bool right) {
+        test_Compare_called = true;
+        return left == right;
+      };
   bool before_each_called = false;
-  MaybeTestConfigureFunction before_each = [&before_each_called]() { before_each_called = true; };
+  MaybeTestConfigureFunction before_each = [&before_each_called]() {
+    before_each_called = true;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   bool test_function_called = false;
   function<bool()> test_function = [&test_function_called]() {
     test_function_called = true;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 false);
+                 suite_Compare, before_all, after_all, false);
   };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output, Eq(R"test(🚧Skipping suite: My Suite because it is disabled.
+  EXPECT_THAT(output,
+              Eq(R"test(🚧Skipping suite: My Suite because it is disabled.
   🚧Skipping Test: Test Name because the suite is disabled.
 )test"));
   EXPECT_THAT(test_function_called, Eq(false));
@@ -730,32 +768,44 @@ TEST(ExecuteSuiteWithParams, ShouldNotExecuteADisabledSuite) {
 
 TEST(ExecuteSuiteWithParams, ShouldNotExecuteASuiteWithNoTests) {
   bool suite_Compare_called = false;
-  MaybeTestCompareFunction<bool> suite_Compare = [&suite_Compare_called](bool left, bool right) {
-    suite_Compare_called = true;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> suite_Compare =
+      [&suite_Compare_called](bool left, bool right) {
+        suite_Compare_called = true;
+        return left == right;
+      };
   bool before_all_called = false;
-  MaybeTestConfigureFunction before_all = [&before_all_called]() { before_all_called = true; };
-  bool after_all_called = false;
-  MaybeTestConfigureFunction after_all = [&after_all_called]() { after_all_called = true; };
-  bool test_Compare_called = false;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_called](bool left, bool right) {
-    test_Compare_called = true;
-    return left == right;
+  MaybeTestConfigureFunction before_all = [&before_all_called]() {
+    before_all_called = true;
   };
+  bool after_all_called = false;
+  MaybeTestConfigureFunction after_all = [&after_all_called]() {
+    after_all_called = true;
+  };
+  bool test_Compare_called = false;
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_called](bool left, bool right) {
+        test_Compare_called = true;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   bool test_function_called = false;
   function<bool()> test_function = [&test_function_called]() {
     test_function_called = true;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite", test_function, {}, suite_Compare, before_all, after_all, true);
+    ExecuteSuite("My Suite", test_function, {}, suite_Compare, before_all,
+                 after_all, true);
   };
 
   string output = InterceptCout(wrapper);
@@ -780,37 +830,39 @@ TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASinglePass) {
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     ✅PASSED
   Ending Test: Test Name
@@ -836,37 +888,39 @@ TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASingleFailure) {
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", false, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", false, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     ❌FAILED: expected: 0, actual: 1
   Ending Test: Test Name
@@ -892,37 +946,39 @@ TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASingleSkip) {
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, false),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, false),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   🚧Skipping Test: Test Name
 Ending Suite: My Suite
 )test"));
@@ -935,7 +991,8 @@ Ending Suite: My Suite
   EXPECT_THAT(after_each_call_count, Eq(0));
 }
 
-TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASinglePassAndADisabledTest) {
+TEST(ExecuteSuiteWithParams,
+     ShouldExecuteASuiteWithASinglePassAndADisabledTest) {
   int suite_Compare_call_count = 0;
   MaybeTestCompareFunction<bool> suite_Compare = [&](bool left, bool right) {
     suite_Compare_call_count++;
@@ -946,38 +1003,41 @@ TEST(ExecuteSuiteWithParams, ShouldExecuteASuiteWithASinglePassAndADisabledTest)
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
-                     MakeTest("Second Test", false, make_tuple(), test_Compare, before_each, after_each, false),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
+                     MakeTest("Second Test", false, make_tuple(), test_Compare,
+                              before_each, after_each, false),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     ✅PASSED
   Ending Test: Test Name
@@ -1004,14 +1064,19 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAnExceptionThrownByATest) {
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return true;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
@@ -1020,24 +1085,24 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAnExceptionThrownByATest) {
   };
 
   // Create a test run
-  auto test_run = MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true);
-  
+  auto test_run = MakeTest("Test Name", true, make_tuple(), test_Compare,
+                           before_each, after_each, true);
+
   // Create a vector of test runs
   std::vector<TestTuple<bool>> test_runs;
   test_runs.push_back(test_run);
-  
-  // Use the vector-based MakeTestSuite overload
-  auto suite = MakeTestSuite("My Suite", test_function, test_runs, suite_Compare, before_all, after_all, true);
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
-  function<void()> wrapper = [&suite]() {
-    ExecuteSuite(suite);
-  };
+  // Use the vector-based MakeTestSuite overload
+  auto suite = MakeTestSuite("My Suite", test_function, test_runs,
+                             suite_Compare, before_all, after_all, true);
+
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
+  function<void()> wrapper = [&suite]() { ExecuteSuite(suite); };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught exception "std::exception".
     ❌FAILED: expected: 1, actual: 0
@@ -1057,21 +1122,26 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAStringThrownByATest) {
   int suite_Compare_call_count = 0;
   MaybeTestCompareFunction<bool> suite_Compare = [&](bool left, bool right) {
     suite_Compare_call_count++;
-    return left == right;
+    return true;
   };
   int before_all_call_count = 0;
   MaybeTestConfigureFunction before_all = [&]() { before_all_call_count++; };
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
@@ -1079,25 +1149,22 @@ TEST(ExecuteSuiteWithParams, ShouldCatchAStringThrownByATest) {
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
   // string output = "";
   // EXPECT_THROW((output = InterceptCout(wrapper)), std::exception);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught string "burp".
     ❌FAILED: expected: 1, actual: 0
@@ -1117,21 +1184,26 @@ TEST(ExecuteSuiteWithParams, ShouldCatchACStringThrownByATest) {
   int suite_Compare_call_count = 0;
   MaybeTestCompareFunction<bool> suite_Compare = [&](bool left, bool right) {
     suite_Compare_call_count++;
-    return left == right;
+    return true;
   };
   int before_all_call_count = 0;
   MaybeTestConfigureFunction before_all = [&]() { before_all_call_count++; };
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
@@ -1139,25 +1211,22 @@ TEST(ExecuteSuiteWithParams, ShouldCatchACStringThrownByATest) {
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
   // string output = "";
   // EXPECT_THROW((output = InterceptCout(wrapper)), std::exception);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught c-string "burp".
     ❌FAILED: expected: 1, actual: 0
@@ -1177,21 +1246,26 @@ TEST(ExecuteSuiteWithParams, ShouldCatchSomethingElseThrownByATest) {
   int suite_Compare_call_count = 0;
   MaybeTestCompareFunction<bool> suite_Compare = [&](bool left, bool right) {
     suite_Compare_call_count++;
-    return left == right;
+    return true;
   };
   int before_all_call_count = 0;
   MaybeTestConfigureFunction before_all = [&]() { before_all_call_count++; };
   int after_all_call_count = 0;
   MaybeTestConfigureFunction after_all = [&]() { after_all_call_count++; };
   int test_Compare_call_count = 0;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_call_count](bool left, bool right) {
-    test_Compare_call_count++;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_call_count](bool left, bool right) {
+        test_Compare_call_count++;
+        return left == right;
+      };
   int before_each_call_count = 0;
-  MaybeTestConfigureFunction before_each = [&before_each_call_count]() { before_each_call_count++; };
+  MaybeTestConfigureFunction before_each = [&before_each_call_count]() {
+    before_each_call_count++;
+  };
   int after_each_call_count = 0;
-  MaybeTestConfigureFunction after_each = [&after_each_call_count]() { after_each_call_count++; };
+  MaybeTestConfigureFunction after_each = [&after_each_call_count]() {
+    after_each_call_count++;
+  };
   int test_function_call_count = 0;
   function<bool()> test_function = [&test_function_call_count]() {
     test_function_call_count++;
@@ -1199,25 +1273,22 @@ TEST(ExecuteSuiteWithParams, ShouldCatchSomethingElseThrownByATest) {
     return true;
   };
 
-  // TODO: Remove this wrapper function once InterceptCout works properly with parameters.
+  // TODO: Remove this wrapper function once InterceptCout works properly with
+  // parameters.
   function<void()> wrapper = [&]() {
-    ExecuteSuite("My Suite",
-                 test_function,
+    ExecuteSuite("My Suite", test_function,
                  {
-                     MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+                     MakeTest("Test Name", true, make_tuple(), test_Compare,
+                              before_each, after_each, true),
                  },
-                 suite_Compare,
-                 before_all,
-                 after_all,
-                 true);
+                 suite_Compare, before_all, after_all, true);
   };
 
   string output = InterceptCout(wrapper);
   // string output = "";
   // EXPECT_THROW((output = InterceptCout(wrapper)), std::exception);
-  EXPECT_THAT(output,
-              Eq(
-                  R"test(🚀Beginning Suite: My Suite
+  EXPECT_THAT(output, Eq(
+                          R"test(🚀Beginning Suite: My Suite
   Beginning Test: Test Name
     🔥ERROR: Caught something that is neither an std::exception nor an std::string.
     ❌FAILED: expected: 1, actual: 0
@@ -1235,44 +1306,51 @@ Ending Suite: My Suite
 
 TEST(ExecuteSuiteWithTuple, ShouldNotExecuteADisabledSuite) {
   bool suite_Compare_called = false;
-  MaybeTestCompareFunction<bool> suite_Compare = [&suite_Compare_called](bool left, bool right) {
-    suite_Compare_called = true;
-    return left == right;
-  };
+  MaybeTestCompareFunction<bool> suite_Compare =
+      [&suite_Compare_called](bool left, bool right) {
+        suite_Compare_called = true;
+        return left == right;
+      };
   bool before_all_called = false;
-  MaybeTestConfigureFunction before_all = [&before_all_called]() { before_all_called = true; };
-  bool after_all_called = false;
-  MaybeTestConfigureFunction after_all = [&after_all_called]() { after_all_called = true; };
-  bool test_Compare_called = false;
-  MaybeTestCompareFunction<bool> test_Compare = [&test_Compare_called](bool left, bool right) {
-    test_Compare_called = true;
-    return left == right;
+  MaybeTestConfigureFunction before_all = [&before_all_called]() {
+    before_all_called = true;
   };
+  bool after_all_called = false;
+  MaybeTestConfigureFunction after_all = [&after_all_called]() {
+    after_all_called = true;
+  };
+  bool test_Compare_called = false;
+  MaybeTestCompareFunction<bool> test_Compare =
+      [&test_Compare_called](bool left, bool right) {
+        test_Compare_called = true;
+        return left == right;
+      };
   bool before_each_called = false;
-  MaybeTestConfigureFunction before_each = [&before_each_called]() { before_each_called = true; };
+  MaybeTestConfigureFunction before_each = [&before_each_called]() {
+    before_each_called = true;
+  };
   bool after_each_called = false;
-  MaybeTestConfigureFunction after_each = [&after_each_called]() { after_each_called = true; };
+  MaybeTestConfigureFunction after_each = [&after_each_called]() {
+    after_each_called = true;
+  };
   bool test_function_called = false;
   function<bool()> test_function = [&test_function_called]() {
     test_function_called = true;
     return true;
   };
   TestSuite<bool> test_suite = MakeTestSuite(
-      "My Suite",
-      []() { return true; },
+      "My Suite", []() { return true; },
       {
-          MakeTest("Test Name", true, make_tuple(), test_Compare, before_each, after_each, true),
+          MakeTest("Test Name", true, make_tuple(), test_Compare, before_each,
+                   after_each, true),
       },
-      suite_Compare,
-      before_all,
-      after_all,
-      false);
+      suite_Compare, before_all, after_all, false);
   function<void()> wrapper = [&test_suite]() { ExecuteSuite(test_suite); };
 
   string output = InterceptCout(wrapper);
-  EXPECT_THAT(output,
-              Eq("🚧Skipping suite: My Suite because it is disabled.\n  🚧Skipping Test: Test Name because the suite "
-                 "is disabled.\n"));
+  EXPECT_THAT(output, Eq("🚧Skipping suite: My Suite because it is disabled.\n "
+                         " 🚧Skipping Test: Test Name because the suite "
+                         "is disabled.\n"));
   EXPECT_THAT(test_function_called, Eq(false));
   EXPECT_THAT(suite_Compare_called, Eq(false));
   EXPECT_THAT(before_all_called, Eq(false));
@@ -1299,11 +1377,13 @@ For all tests
 * Should call before_each once per test.
 * Should call after_each once per test.
 * Should call after_all once after the last after_each.
-* Should print output. Test with one of each kind of test above to make sure all cout statements happen correctly.
-Hijack cout before calling ExecuteSuite and restore it after. Split the recorded cout output into lines for easier
-order checking while allowing for parallelism.
+* Should print output. Test with one of each kind of test above to make sure all
+cout statements happen correctly. Hijack cout before calling ExecuteSuite and
+restore it after. Split the recorded cout output into lines for easier order
+checking while allowing for parallelism.
 */
 // TODO: Test InterceptCout.
-// TODO: Test container printer prints initializer_lists and other non-vector containers.
+// TODO: Test container printer prints initializer_lists and other non-vector
+// containers.
 // TODO: Test SkipTest
-}  // End namespace
+} // End namespace
